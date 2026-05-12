@@ -1,0 +1,14 @@
+.git
+.gitignore
+.env
+.env.*
+*.md
+README.md
+bin/
+vendor/
+*.test
+coverage.out
+coverage.html
+.idea/
+.vscode/
+.windsurf/

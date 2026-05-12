@@ -1,0 +1,191 @@
+# Stack Swarm do SMID 10 (ambiente de testes na VPS)
+#
+# Deploy:
+#   docker stack deploy -c deploy/swarm-stack.yml smid10
+#
+# Pré-requisitos:
+#   1. Rede overlay `SmydiNet` já existe (compartilhada com Traefik)
+#   2. Secrets criados (ver deploy/README.md seção 3)
+#   3. Imagem `ghcr.io/aojunioro/smid10-api:dev` publicada
+#   4. Registros DNS A apontando s10.smydi.com.br e api.s10.smydi.com.br para a VPS
+
+version: "3.9"
+
+services:
+
+  # -----------------------------------------------------------------------
+  # MariaDB 10.11 — espelha os 4 bancos legados do SMID 8.x para testes
+  # -----------------------------------------------------------------------
+  mariadb:
+    image: mariadb:10.11
+    networks:
+      - SmydiNet
+    environment:
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/smid10_mariadb_root_password
+      MARIADB_USER: smid10
+      MARIADB_PASSWORD_FILE: /run/secrets/smid10_mariadb_user_password
+      MARIADB_AUTO_UPGRADE: "1"
+      TZ: America/Sao_Paulo
+    volumes:
+      - smid10_mariadb_data:/var/lib/mysql
+      - smid10_mariadb_init:/docker-entrypoint-initdb.d:ro
+    secrets:
+      - smid10_mariadb_root_password
+      - smid10_mariadb_user_password
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 192M
+      restart_policy:
+        condition: on-failure
+        delay: 10s
+        max_attempts: 3
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # -----------------------------------------------------------------------
+  # Backend Go — API REST do SMID 10
+  # -----------------------------------------------------------------------
+  api:
+    image: ghcr.io/aojunioro/smid10-api:${SMID10_API_TAG:-dev}
+    networks:
+      - SmydiNet
+    environment:
+      APP_PORT: "8080"
+      APP_ENV: "staging"
+      DB_SMID_DSN_FILE: /run/secrets/smid10_dsn_smid
+      DB_PERMISSION_DSN_FILE: /run/secrets/smid10_dsn_permission
+      DB_LOG_DSN_FILE: /run/secrets/smid10_dsn_log
+      DB_COMMUNICATION_DSN_FILE: /run/secrets/smid10_dsn_communication
+      DB_MAX_OPEN_CONNS: "10"
+      DB_MAX_IDLE_CONNS: "4"
+      DB_CONN_MAX_LIFETIME_MIN: "30"
+      JWT_SECRET_FILE: /run/secrets/smid10_jwt_secret
+      JWT_EXPIRATION_HOURS: "8"
+      JWT_REFRESH_EXPIRATION_HOURS: "168"
+      CORS_ALLOWED_ORIGINS: "https://s10.smydi.com.br"
+      LOG_LEVEL: "info"
+      LOG_FORMAT: "json"
+      TZ: America/Sao_Paulo
+    secrets:
+      - smid10_dsn_smid
+      - smid10_dsn_permission
+      - smid10_dsn_log
+      - smid10_dsn_communication
+      - smid10_jwt_secret
+    deploy:
+      replicas: 1
+      placement:
+        constraints:
+          - node.role == manager
+      resources:
+        limits:
+          memory: 128M
+        reservations:
+          memory: 32M
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 5
+      update_config:
+        order: start-first
+        parallelism: 1
+        failure_action: rollback
+      rollback_config:
+        order: stop-first
+        parallelism: 1
+      labels:
+        - "traefik.enable=true"
+        - "traefik.docker.network=SmydiNet"
+        - "traefik.swarm.network=SmydiNet"
+        # Router HTTPS
+        - "traefik.http.routers.smid10-api.rule=Host(`api.s10.smydi.com.br`)"
+        - "traefik.http.routers.smid10-api.entrypoints=websecure"
+        - "traefik.http.routers.smid10-api.tls=true"
+        - "traefik.http.routers.smid10-api.tls.certresolver=letsencryptresolver"
+        - "traefik.http.routers.smid10-api.service=smid10-api"
+        # Service
+        - "traefik.http.services.smid10-api.loadbalancer.server.port=8080"
+        - "traefik.http.services.smid10-api.loadbalancer.passhostheader=true"
+        # Middlewares
+        - "traefik.http.routers.smid10-api.middlewares=smid10-api-secure-headers@docker"
+        - "traefik.http.middlewares.smid10-api-secure-headers.headers.framedeny=true"
+        - "traefik.http.middlewares.smid10-api-secure-headers.headers.contenttypenosniff=true"
+        - "traefik.http.middlewares.smid10-api-secure-headers.headers.referrerpolicy=no-referrer"
+        - "traefik.http.middlewares.smid10-api-secure-headers.headers.stsseconds=31536000"
+        - "traefik.http.middlewares.smid10-api-secure-headers.headers.stsincludesubdomains=true"
+
+  # -----------------------------------------------------------------------
+  # Frontend Next.js — habilitado quando o scaffold da Fase 0.1 do frontend
+  # estiver concluído. Mantido comentado até lá para não falhar o deploy.
+  # -----------------------------------------------------------------------
+  # web:
+  #   image: ghcr.io/aojunioro/smid10-web:${SMID10_WEB_TAG:-dev}
+  #   networks:
+  #     - SmydiNet
+  #   environment:
+  #     NEXT_PUBLIC_API_BASE_URL: "https://api.s10.smydi.com.br"
+  #     TZ: America/Sao_Paulo
+  #   deploy:
+  #     replicas: 1
+  #     placement:
+  #       constraints:
+  #         - node.role == manager
+  #     resources:
+  #       limits:
+  #         memory: 256M
+  #       reservations:
+  #         memory: 96M
+  #     restart_policy:
+  #       condition: on-failure
+  #     update_config:
+  #       order: start-first
+  #       parallelism: 1
+  #       failure_action: rollback
+  #     labels:
+  #       - "traefik.enable=true"
+  #       - "traefik.docker.network=SmydiNet"
+  #       - "traefik.swarm.network=SmydiNet"
+  #       - "traefik.http.routers.smid10-web.rule=Host(`s10.smydi.com.br`)"
+  #       - "traefik.http.routers.smid10-web.entrypoints=websecure"
+  #       - "traefik.http.routers.smid10-web.tls=true"
+  #       - "traefik.http.routers.smid10-web.tls.certresolver=letsencryptresolver"
+  #       - "traefik.http.routers.smid10-web.service=smid10-web"
+  #       - "traefik.http.services.smid10-web.loadbalancer.server.port=3000"
+
+# -----------------------------------------------------------------------
+volumes:
+  smid10_mariadb_data:
+  smid10_mariadb_init:
+    # Populado manualmente antes do primeiro deploy (ver deploy/README.md §2)
+    external: false
+
+networks:
+  SmydiNet:
+    external: true
+
+secrets:
+  smid10_mariadb_root_password:
+    external: true
+  smid10_mariadb_user_password:
+    external: true
+  smid10_dsn_smid:
+    external: true
+  smid10_dsn_permission:
+    external: true
+  smid10_dsn_log:
+    external: true
+  smid10_dsn_communication:
+    external: true
+  smid10_jwt_secret:
+    external: true
