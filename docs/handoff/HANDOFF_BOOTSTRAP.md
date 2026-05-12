@@ -21,7 +21,9 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 1. **Cenário 2** — Go (API REST) + Next.js (SPA separada) → `docs/adrs/0001-cenario-2-go-next.md`
 2. **Reuso da base legada** — schema legado intocável durante a coexistência → `docs/adrs/0002-reuso-base-legado.md`
 3. **Stack detalhada** — Echo, sqlc, JWT v5, Next 14, shadcn/ui, TailwindCSS, TanStack Query/Table, dnd-kit → `docs/adrs/0003-stack-detalhada.md`
-4. **Template inicial recomendado**: `shadcn-admin` (https://github.com/satnaing/shadcn-admin) para o frontend
+4. **Postgres como destino pós-cutover** (Fase 8); preparação contínua em medidas baratas → `docs/adrs/0004-postgres-pos-cutover.md`
+5. **Ambiente de testes em Docker Swarm na VPS compartilhada** (Traefik + `SmydiNet` + MariaDB 10.11) → `docs/adrs/0005-ambiente-testes-swarm-vps.md`
+6. **Template inicial recomendado**: `shadcn-admin` (https://github.com/satnaing/shadcn-admin) para o frontend
 
 ---
 
@@ -50,39 +52,66 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 
 ## 6. O Que Já Foi Concluído
 
-- Estrutura de pastas (`backend/`, `frontend/`, `docs/`)
+### Bootstrap inicial
+- Estrutura de pastas (`backend/`, `frontend/`, `docs/`, `deploy/`)
 - 24 SPECs canônicos copiados para `docs/specs/`
 - Schema base do legado copiado para `docs/legacy-schema/`
 - Docs críticos de UX/UI copiados para `docs/legacy-reference/`
-- 3 ADRs iniciais escritos
+- **5 ADRs** escritos (0001-0005)
 - `README.md`, `AGENTS.md` e `.gitignore` criados
 - `backend/.env.example` com DSN dos 4 bancos
 - Repositório git inicializado, commit inicial e push para `origin/main`
 
+### Fase 0.1 — Backend bootstrap (concluída em 2026-05-12)
+- `go.mod` inicializado (`github.com/aojunioro/smid_10/backend`, Go 1.26.3)
+- `backend/cmd/server/main.go` — Echo v4, middlewares (`RequestID`, `Recover`, `CORS`), `GET /healthz`, graceful shutdown via SIGINT/SIGTERM, logger `slog` JSON
+- `backend/internal/config/config.go` — `Load()` via `godotenv`, validação de DSNs/JWT obrigatórios, **suporte a Docker Secrets** via sufixo `_FILE`
+- `backend/internal/db/pools.go` — 4 pools nomeados (smid/permission/log/communication) com `PingAll` e timeout por alias
+- `go build ./...` e `go vet ./...` verdes
+
+### Fase 0 — Ambiente de testes (concluída em 2026-05-12)
+- `backend/Dockerfile` multi-stage (distroless, ≈ 15 MB)
+- `backend/.dockerignore`
+- `deploy/swarm-stack.yml` — stack `smid10` (MariaDB + API; web comentado)
+- `deploy/mariadb-init/01-schemas.sql` — 4 schemas + usuário `smid10`
+- `deploy/README.md` — runbook operacional completo
+- `.github/workflows/backend-build.yml` — CI publica em `ghcr.io/aojunioro/smid10-api`
+- `.gitignore` reforçado: `credenciais.md`, `secrets/`, `*.pem`, `*.key`, `deploy/.env*`
+
 ---
 
-## 7. Pendências Abertas (Fase 0)
+## 7. Pendências Abertas
 
-### Backend
+### Deploy do ambiente de testes (pré-Fase 1)
 
-1. Inicializar módulo: `cd backend && go mod init github.com/aojunioro/smid_10/backend`
-2. Adicionar dependências (ver `backend/README.md` seção 3.2)
-3. Criar `cmd/server/main.go` com Echo + `GET /healthz`
-4. Criar `internal/config/config.go` lendo `.env` via `godotenv`
-5. Criar `internal/db/pools.go` com 4 pools (`smid`, `permission`, `log`, `communication`)
-6. Health check que valida ping nos 4 pools
+1. Trocar a senha root da VPS e configurar SSH por chave (segurança)
+2. Criar registros DNS A:
+   - `api.s10.smydi.com.br` → `216.144.235.25`
+   - `s10.smydi.com.br` → `216.144.235.25`
+3. Push do código para `origin/main` para acionar o build no CI
+4. Na VPS: criar os 8 Swarm secrets (`deploy/README.md §3`)
+5. Na VPS: popular o volume `smid10_mariadb_init` com `01-schemas.sql` (`deploy/README.md §4`)
+6. Na VPS: `docker stack deploy -c deploy/swarm-stack.yml smid10 --with-registry-auth`
+7. Validar `https://api.s10.smydi.com.br/healthz` retornando `status: "ok"`
 
-### Frontend
+### Backend (Fase 0.2+)
+
+1. Middleware de logging estruturado por requisição (request_id, latência, status)
+2. Repositórios atrás de interfaces (preparação para ADR 0004 — Postgres pós-cutover)
+3. Setup de testes com `testcontainers` para repositórios
+
+### Frontend (Fase 0.1 do frontend)
 
 1. Scaffold do `shadcn-admin` em `frontend/` (opção A do `frontend/README.md`)
-2. Configurar `lib/api/client.ts` apontando para `http://localhost:8080`
+2. Configurar `lib/api/client.ts` apontando para `https://api.s10.smydi.com.br` (staging) com fallback `localhost:8080`
 3. Setar tema dark/light e branding
+4. Descomentar o serviço `web` em `deploy/swarm-stack.yml` quando a imagem `smid10-web` estiver publicada
 
 ---
 
 ## 8. Próximo Passo Executável
 
-> **Fase 0.1 do backend**: criar `cmd/server/main.go` minimal com Echo expondo `GET /healthz` retornando `200 OK` com `{"status":"ok"}`, lendo a porta de `.env`. Em seguida, implementar `internal/config/config.go` e `internal/db/pools.go` para conectar aos 4 bancos legados e estender o healthz para validar pings.
+> **Deploy do stack `smid10` na VPS**: seguir `deploy/README.md` seções §2 (DNS), §3 (secrets), §4 (volume init) e §6 (deploy). Validar `/healthz` interno e externo conforme §7. Em paralelo, iniciar o scaffold do frontend (`frontend/README.md`).
 
 ---
 
@@ -93,6 +122,8 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 3. **Encoding/collation** — algumas tabelas legadas têm mojibake (`latin1` com UTF-8 dentro); usar `charset=utf8mb4` no DSN e revisar caso a caso
 4. **Sessões PHP do SMID 8.x são independentes** do JWT do SMID 10 — usuário pode estar logado em um e não no outro durante a coexistência
 5. **Filtro de unidade**: toda query do SMID 10 deve respeitar `unidd_id` e `excluido_em IS NULL`
+6. **RAM apertada na VPS** — ~1 GB livre; nunca remover `deploy.resources.limits.memory` do `swarm-stack.yml` ou outros stacks de produção podem cair (Chatwoot, Evolution, Typebot)
+7. **Credenciais SSH** — o arquivo `credenciais.md` está gitignorado mas a senha root SSH passou pelo histórico do agente; rotacionar e migrar para chave SSH é recomendado
 
 ---
 
@@ -148,4 +179,4 @@ pnpm dev
 
 ---
 
-**Status**: bootstrap concluído, aguardando início da Fase 0.1
+**Status**: Fase 0.1 do backend concluída; ambiente de deploy preparado; aguardando deploy efetivo na VPS e início do scaffold do frontend
