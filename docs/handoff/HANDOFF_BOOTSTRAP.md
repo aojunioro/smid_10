@@ -109,8 +109,10 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 3. ~~Tema dark/light já configurado no shadcn-admin~~ — concluído
 4. ~~Criar Dockerfile e configurar CI para build da imagem~~ — concluído
 5. ~~Descomentar serviço web em swarm-stack.yml~~ — concluído
-6. **Deploy do frontend na VPS** — pendente (imagem ainda não disponível no registry, workflow de build rodando no CI)
-7. Configurar DNS para `s10.smydi.com.br` → `216.144.235.25` (DNS only na Cloudflare)
+6. ~~Mudar CI de GHCR para Docker Hub (GHCR tinha problemas de visibilidade)~~ — concluído
+7. ~~Deploy do frontend na VPS~~ — concluído
+8. ~~Configurar DNS para `s10.smydi.com.br` → `216.144.235.25` (DNS only na Cloudflare)~~ — concluído
+9. ~~Smoke-test do frontend: curl https://s10.smydi.com.br~~ — concluído
 
 ---
 
