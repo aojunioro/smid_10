@@ -16,6 +16,8 @@ import (
 
 // SetupRouter configura todas as rotas da aplicação.
 func SetupRouter(e *echo.Echo, cfg *config.Config, pools *db.Pools, logger *slog.Logger) {
+	logger.Info("SetupRouter iniciado")
+
 	// Middlewares globais
 	e.Use(echomiddleware.RequestID())
 	e.Use(echomiddleware.Recover())
