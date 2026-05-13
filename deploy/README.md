@@ -116,24 +116,24 @@ docker stack deploy -c deploy/swarm-stack.yml smid10
 
 ## 5. Publicar a Imagem da API
 
-Na primeira vez (e em cada push em `main`), o GitHub Actions builda e publica em `ghcr.io/aojunioro/smid10-api:dev` automaticamente via `.github/workflows/backend-build.yml`.
+Na primeira vez (e em cada push em `main`), o GitHub Actions builda e publica em `docker.io/aojunioro/smid10-api:dev` automaticamente via `.github/workflows/backend-build.yml`.
 
 Build local (para testar antes do CI):
 
 ```bash
 docker buildx build --platform linux/amd64 \
-  -t ghcr.io/aojunioro/smid10-api:dev \
+  -t aojunioro/smid10-api:dev \
   -f backend/Dockerfile \
   --push \
   backend
 ```
 
-> Para `--push` funcionar localmente: `echo $GITHUB_TOKEN | docker login ghcr.io -u aojunioro --password-stdin`
+> Para `--push` funcionar localmente: `echo $DOCKER_PASSWORD | docker login docker.io -u $DOCKER_USERNAME --password-stdin`
 
-A imagem é pública (ou privada, conforme configuração no GHCR). Se privada, criar pull secret no Swarm:
+A imagem é pública (ou privada, conforme configuração no Docker Hub). Se privada, criar pull secret no Swarm:
 
 ```bash
-docker login ghcr.io
+docker login docker.io
 docker stack deploy -c deploy/swarm-stack.yml smid10 --with-registry-auth
 ```
 
