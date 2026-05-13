@@ -19,7 +19,11 @@ func SetupRouter(e *echo.Echo, cfg *config.Config, pools *db.Pools, logger *slog
 	// Middlewares globais
 	e.Use(echomiddleware.RequestID())
 	e.Use(echomiddleware.Recover())
-	e.Use(echomiddleware.CORS())
+	e.Use(echomiddleware.CORSWithConfig(echomiddleware.CORSConfig{
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.PATCH, echo.DELETE, echo.OPTIONS},
+		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+	}))
 
 	// Middleware de logging estruturado customizado
 	e.Use(middleware.RequestLogger(logger))
