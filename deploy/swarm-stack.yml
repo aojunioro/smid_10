@@ -121,7 +121,7 @@ services:
   # Frontend (Vite + nginx) — habilitado após build da imagem no CI
   # -----------------------------------------------------------------------
   web:
-    image: ghcr.io/aojunioro/smid10-web:${SMID10_WEB_TAG:-dev}
+    image: aojunioro/smid10-web:${SMID10_WEB_TAG:-dev}
     networks:
       - SmydiNet
     environment:
