@@ -85,16 +85,16 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 ### Deploy do ambiente de testes (pré-Fase 1) — concluído em 2026-05-13
 
 1. ~~Trocar a senha root da VPS e configurar SSH por chave (segurança)~~
-2. Criar registros DNS A:
-   - `api.s10.smydi.com.br` → `216.144.235.25` (pendente)
-   - `s10.smydi.com.br` → `216.144.235.25` (pendente)
+2. ~~Criar registros DNS A~~:
+   - `api.s10.smydi.com.br` → `216.144.235.25` (concluído, DNS only na Cloudflare)
+   - `s10.smydi.com.br` → `216.144.235.25` (pendente - frontend ainda não deployado)
 3. ~~Push do código para `origin/main` para acionar o build no CI~~
 4. ~~Na VPS: criar os 8 Swarm secrets (`deploy/README.md §3`)~~
 5. ~~Na VPS: popular o volume `smid10_mariadb_init` com `01-schemas.sql` (`deploy/README.md §4`)~~
 6. ~~Na VPS: `docker stack deploy -c deploy/swarm-stack.yml smid10 --with-registry-auth`~~
-7. ~~Validar `https://api.s10.smydi.com.br/healthz` retornando `status: "ok"`~~ (smoke-test interno OK, externo pendente DNS)
+7. ~~Validar `https://api.s10.smydi.com.br/healthz` retornando `status: "ok"`~~ (smoke-test interno e externo OK)
 
-**Nota**: O volume `smid10_mariadb_data` já existia antes do deploy, então os scripts de init não foram executados automaticamente. Os bancos foram criados manualmente via SQL direto no container.
+**Nota**: O volume `smid10_mariadb_data` já existia antes do deploy, então os scripts de init não foram executados automaticamente. Os bancos foram criados manualmente via SQL direto no container. O certificado Let's Encrypt foi gerado após mudar o DNS de api.s10.smydi.com.br para "DNS only" na Cloudflare (HTTP challenge não funciona através do proxy).
 
 ### Backend (Fase 0.2+)
 
