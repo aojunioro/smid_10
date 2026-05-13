@@ -6,7 +6,7 @@
 # Pré-requisitos:
 #   1. Rede overlay `SmydiNet` já existe (compartilhada com Traefik)
 #   2. Secrets criados (ver deploy/README.md seção 3)
-#   3. Imagem `aojunioro/smid10-api:dev` publicada no Docker Hub
+#   3. Imagem `ghcr.io/aojunioro/smid10-api:dev` publicada
 #   4. Registros DNS A apontando s10.smydi.com.br e api.s10.smydi.com.br para a VPS
 
 version: "3.9"
@@ -57,7 +57,7 @@ services:
   # Backend Go — API REST do SMID 10
   # -----------------------------------------------------------------------
   api:
-    image: aojunioro/smid10-api:${SMID10_API_TAG:-dev}
+    image: ghcr.io/aojunioro/smid10-api:${SMID10_API_TAG:-dev}
     networks:
       - SmydiNet
     environment:

@@ -51,11 +51,8 @@ func (s *AuthService) Login(ctx context.Context, req LoginRequest) (*LoginRespon
 	// Buscar usuário pelo login
 	user, err := s.userRepo.FindByLogin(ctx, req.Login)
 	if err != nil {
-		fmt.Printf("Erro ao buscar usuário: %v\n", err)
 		return nil, ErrInvalidCredentials
 	}
-
-	fmt.Printf("Usuário encontrado: %s, Active: %v\n", user.Login, user.Active)
 
 	// Verificar se o usuário está ativo
 	if !user.Active {
@@ -63,13 +60,9 @@ func (s *AuthService) Login(ctx context.Context, req LoginRequest) (*LoginRespon
 	}
 
 	// Verificar senha
-	fmt.Printf("Comparando senha: hash=%s, password=%s\n", user.PasswordHash, req.Password)
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(req.Password)); err != nil {
-		fmt.Printf("Erro na comparação de senha: %v\n", err)
 		return nil, ErrInvalidCredentials
 	}
-
-	fmt.Printf("Senha válida, gerando token\n")
 
 	// Gerar token JWT
 	token, expiresAt, err := s.generateToken(user)
