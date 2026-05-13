@@ -107,23 +107,15 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.docker.network=SmydiNet"
-        - "traefik.swarm.network=SmydiNet"
         # Router HTTPS
         - "traefik.http.routers.smid10-api.rule=Host(`api.s10.smydi.com.br`)"
         - "traefik.http.routers.smid10-api.entrypoints=websecure"
-        - "traefik.http.routers.smid10-api.tls=true"
+        - "traefik.http.routers.smid10-api.priority=1"
         - "traefik.http.routers.smid10-api.tls.certresolver=letsencryptresolver"
         - "traefik.http.routers.smid10-api.service=smid10-api"
         # Service
         - "traefik.http.services.smid10-api.loadbalancer.server.port=8080"
         - "traefik.http.services.smid10-api.loadbalancer.passhostheader=true"
-        # Middlewares
-        - "traefik.http.routers.smid10-api.middlewares=smid10-api-secure-headers@docker"
-        - "traefik.http.middlewares.smid10-api-secure-headers.headers.framedeny=true"
-        - "traefik.http.middlewares.smid10-api-secure-headers.headers.contenttypenosniff=true"
-        - "traefik.http.middlewares.smid10-api-secure-headers.headers.referrerpolicy=no-referrer"
-        - "traefik.http.middlewares.smid10-api-secure-headers.headers.stsseconds=31536000"
-        - "traefik.http.middlewares.smid10-api-secure-headers.headers.stsincludesubdomains=true"
 
   # -----------------------------------------------------------------------
   # Frontend Next.js — habilitado quando o scaffold da Fase 0.1 do frontend
