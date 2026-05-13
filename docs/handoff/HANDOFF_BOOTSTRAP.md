@@ -104,10 +104,13 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 
 ### Frontend (Fase 0.1 do frontend)
 
-1. Scaffold do `shadcn-admin` em `frontend/` (opção A do `frontend/README.md`)
-2. Configurar `lib/api/client.ts` apontando para `https://api.s10.smydi.com.br` (staging) com fallback `localhost:8080`
-3. Setar tema dark/light e branding
-4. Descomentar o serviço `web` em `deploy/swarm-stack.yml` quando a imagem `smid10-web` estiver publicada
+1. ~~Scaffold do `shadcn-admin` em `frontend/` (opção A do `frontend/README.md`)~~ — concluído
+2. ~~Configurar `lib/api/` apontando para `https://api.s10.smydi.com.br`~~ — concluído
+3. ~~Tema dark/light já configurado no shadcn-admin~~ — concluído
+4. ~~Criar Dockerfile e configurar CI para build da imagem~~ — concluído
+5. ~~Descomentar serviço web em swarm-stack.yml~~ — concluído
+6. **Deploy do frontend na VPS** — pendente (imagem ainda não disponível no registry, workflow de build rodando no CI)
+7. Configurar DNS para `s10.smydi.com.br` → `216.144.235.25` (DNS only na Cloudflare)
 
 ---
 
