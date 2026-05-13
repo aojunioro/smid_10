@@ -11,11 +11,10 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	echomiddleware "github.com/labstack/echo/v4/middleware"
 
 	"github.com/aojunioro/smid_10/backend/internal/config"
 	"github.com/aojunioro/smid_10/backend/internal/db"
-	"github.com/aojunioro/smid_10/backend/internal/http/middleware"
+	smidhttp "github.com/aojunioro/smid_10/backend/internal/http"
 )
 
 func main() {
@@ -38,14 +37,11 @@ func main() {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
-	e.Use(echomiddleware.Recover())
-	e.Use(echomiddleware.RequestID())
-	e.Use(middleware.RequestLogger(logger))
-	e.Use(echomiddleware.CORSWithConfig(echomiddleware.CORSConfig{
-		AllowOrigins: cfg.CORS.AllowedOrigins,
-		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete, http.MethodOptions},
-	}))
 
+	// Configurar rotas usando o SetupRouter
+	smidhttp.SetupRouter(e, cfg, pools, logger)
+
+	// Adicionar endpoint de healthz manualmente (fora do SetupRouter)
 	e.GET("/healthz", healthHandler(pools))
 
 	srv := &http.Server{

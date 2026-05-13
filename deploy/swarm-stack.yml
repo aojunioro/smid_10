@@ -21,17 +21,17 @@ services:
     networks:
       - SmydiNet
     environment:
-      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/smid10_mariadb_root_password
+      MARIADB_ROOT_PASSWORD_FILE: /run/secrets/smid10_mariadb_root_password_v3
       MARIADB_USER: smid10
-      MARIADB_PASSWORD_FILE: /run/secrets/smid10_mariadb_user_password
+      MARIADB_PASSWORD_FILE: /run/secrets/smid10_mariadb_user_password_v3
       MARIADB_AUTO_UPGRADE: "1"
       TZ: America/Sao_Paulo
     volumes:
       - smid10_mariadb_data:/var/lib/mysql
       - smid10_mariadb_init:/docker-entrypoint-initdb.d:ro
     secrets:
-      - smid10_mariadb_root_password
-      - smid10_mariadb_user_password
+      - smid10_mariadb_root_password_v3
+      - smid10_mariadb_user_password_v3
     deploy:
       replicas: 1
       placement:
@@ -63,10 +63,10 @@ services:
     environment:
       APP_PORT: "8080"
       APP_ENV: "staging"
-      DB_SMID_DSN_FILE: /run/secrets/smid10_dsn_smid
-      DB_PERMISSION_DSN_FILE: /run/secrets/smid10_dsn_permission
-      DB_LOG_DSN_FILE: /run/secrets/smid10_dsn_log
-      DB_COMMUNICATION_DSN_FILE: /run/secrets/smid10_dsn_communication
+      DB_SMID_DSN_FILE: /run/secrets/smid10_dsn_smid_v3
+      DB_PERMISSION_DSN_FILE: /run/secrets/smid10_dsn_permission_v3
+      DB_LOG_DSN_FILE: /run/secrets/smid10_dsn_log_v3
+      DB_COMMUNICATION_DSN_FILE: /run/secrets/smid10_dsn_communication_v3
       DB_MAX_OPEN_CONNS: "10"
       DB_MAX_IDLE_CONNS: "4"
       DB_CONN_MAX_LIFETIME_MIN: "30"
@@ -78,10 +78,10 @@ services:
       LOG_FORMAT: "json"
       TZ: America/Sao_Paulo
     secrets:
-      - smid10_dsn_smid
-      - smid10_dsn_permission
-      - smid10_dsn_log
-      - smid10_dsn_communication
+      - smid10_dsn_smid_v3
+      - smid10_dsn_permission_v3
+      - smid10_dsn_log_v3
+      - smid10_dsn_communication_v3
       - smid10_jwt_secret
     deploy:
       replicas: 1
@@ -168,17 +168,17 @@ networks:
     external: true
 
 secrets:
-  smid10_mariadb_root_password:
+  smid10_mariadb_root_password_v3:
     external: true
-  smid10_mariadb_user_password:
+  smid10_mariadb_user_password_v3:
     external: true
-  smid10_dsn_smid:
+  smid10_dsn_smid_v3:
     external: true
-  smid10_dsn_permission:
+  smid10_dsn_permission_v3:
     external: true
-  smid10_dsn_log:
+  smid10_dsn_log_v3:
     external: true
-  smid10_dsn_communication:
+  smid10_dsn_communication_v3:
     external: true
   smid10_jwt_secret:
     external: true
