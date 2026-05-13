@@ -11,10 +11,11 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	echomiddleware "github.com/labstack/echo/v4/middleware"
 
 	"github.com/aojunioro/smid_10/backend/internal/config"
 	"github.com/aojunioro/smid_10/backend/internal/db"
+	"github.com/aojunioro/smid_10/backend/internal/http/middleware"
 )
 
 func main() {
@@ -37,9 +38,10 @@ func main() {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
-	e.Use(middleware.Recover())
-	e.Use(middleware.RequestID())
-	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+	e.Use(echomiddleware.Recover())
+	e.Use(echomiddleware.RequestID())
+	e.Use(middleware.RequestLogger(logger))
+	e.Use(echomiddleware.CORSWithConfig(echomiddleware.CORSConfig{
 		AllowOrigins: cfg.CORS.AllowedOrigins,
 		AllowMethods: []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete, http.MethodOptions},
 	}))
