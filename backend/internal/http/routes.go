@@ -32,14 +32,14 @@ func SetupRouter(e *echo.Echo, cfg *config.Config, pools *db.Pools, logger *slog
 	v1 := e.Group("/api/v1")
 
 	// Rotas de autenticação (públicas)
-	setupAuthRoutes(v1, cfg, pools)
+	setupAuthRoutes(v1, cfg, pools, logger)
 
 	// Rotas protegidas (requerem autenticação JWT)
 	setupProtectedRoutes(v1, pools)
 }
 
 // setupAuthRoutes configura rotas de autenticação.
-func setupAuthRoutes(v1 *echo.Group, cfg *config.Config, pools *db.Pools) {
+func setupAuthRoutes(v1 *echo.Group, cfg *config.Config, pools *db.Pools, logger *slog.Logger) {
 	// Obter pool de conexão do banco permission
 	permissionDB, err := pools.Get(db.AliasPermission)
 	if err != nil {
@@ -62,6 +62,9 @@ func setupAuthRoutes(v1 *echo.Group, cfg *config.Config, pools *db.Pools) {
 	// Registrar rotas de autenticação
 	auth := v1.Group("/auth")
 	auth.POST("/login", authHandler.Login)
+
+	// Log para debug
+	logger.Info("rotas de autenticação registradas", "route", "/api/v1/auth/login")
 }
 
 // setupProtectedRoutes configura rotas protegidas por autenticação JWT.
