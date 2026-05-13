@@ -38,8 +38,12 @@ func main() {
 	e.HideBanner = true
 	e.HidePort = true
 
+	logger.Info("antes de chamar SetupRouter")
+
 	// Configurar rotas usando o SetupRouter
 	smidhttp.SetupRouter(e, cfg, pools, logger)
+
+	logger.Info("depois de chamar SetupRouter")
 
 	// Adicionar endpoint de healthz manualmente (fora do SetupRouter)
 	e.GET("/healthz", healthHandler(pools))
