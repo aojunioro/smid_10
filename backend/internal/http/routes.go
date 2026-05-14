@@ -10,6 +10,7 @@ import (
 	"github.com/aojunioro/smid_10/backend/internal/db"
 	"github.com/aojunioro/smid_10/backend/internal/domain/admin"
 	"github.com/aojunioro/smid_10/backend/internal/domain/common"
+	"github.com/aojunioro/smid_10/backend/internal/domain/log"
 	"github.com/aojunioro/smid_10/backend/internal/http/handlers"
 	"github.com/aojunioro/smid_10/backend/internal/http/middleware"
 )
@@ -161,4 +162,31 @@ func setupProtectedRoutes(v1 *echo.Group, pools *db.Pools) {
 	units.POST("", unitHandler.CreateUnit)
 	units.PUT("/:id", unitHandler.UpdateUnit)
 	units.DELETE("/:id", unitHandler.DeleteUnit)
+
+	// Obter pool de conexão do banco log
+	logDB, err := pools.Get(db.AliasLog)
+	if err != nil {
+		panic(err)
+	}
+
+	// Criar repositórios de log
+	accessLogRepo := log.NewAccessLogRepository(logDB, common.DBAlias(db.AliasLog))
+	changeLogRepo := log.NewChangeLogRepository(logDB, common.DBAlias(db.AliasLog))
+	sqlLogRepo := log.NewSqlLogRepository(logDB, common.DBAlias(db.AliasLog))
+
+	// Criar serviços de log
+	accessLogService := log.NewAccessLogService(accessLogRepo)
+	changeLogService := log.NewChangeLogService(changeLogRepo)
+	sqlLogService := log.NewSqlLogService(sqlLogRepo)
+
+	// Criar handlers de log
+	accessLogHandler := handlers.NewAccessLogHandler(accessLogService)
+	changeLogHandler := handlers.NewChangeLogHandler(changeLogService)
+	sqlLogHandler := handlers.NewSqlLogHandler(sqlLogService)
+
+	// Rotas de logs (protegidas por JWT)
+	logs := v1.Group("/logs")
+	logs.GET("/access", accessLogHandler.ListAccessLogs)
+	logs.GET("/change", changeLogHandler.ListChangeLogs)
+	logs.GET("/sql", sqlLogHandler.ListSqlLogs)
 }
