@@ -183,6 +183,20 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 
 **Nota**: Todos os endpoints de visitas estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
 
+### Backend (Fase 0.6 — Plataformas de Negócio) — concluído em 2026-05-14
+
+1. ~~Ler SPEC_HISTORICOS e planejar implementação~~ — concluído
+2. ~~Verificar tabelas existentes no banco smid~~ — concluído
+3. ~~Criar tabelas faltantes (historicos, hist_motivo, hist_ocorrido)~~ — concluído
+4. ~~Atualizar entidades HistoricoRepre, HistoricoMotivo, HistoricoOcorrido~~ — concluído
+5. ~~Implementar repositório HistoricoRepository~~ — concluído
+6. ~~Implementar serviço HistoricoService~~ — concluído
+7. ~~Implementar handler HistoricoHandler~~ — concluído
+8. ~~Adicionar rotas de históricos no routes.go~~ — concluído
+9. ~~Deploy e testar endpoints de históricos~~ — concluído (POST /api/v1/historicos, GET /api/v1/historicos, GET /api/v1/historicos/:id, PUT /api/v1/historicos/:id, DELETE /api/v1/historicos/:id)
+
+**Nota**: Todos os endpoints de históricos estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
+
 ### Frontend (Fase 0.1 do frontend)
 
 1. ~~Scaffold do `shadcn-admin` em `frontend/` (opção A do `frontend/README.md`)~~ — concluído
