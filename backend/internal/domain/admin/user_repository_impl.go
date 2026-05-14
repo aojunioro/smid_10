@@ -211,3 +211,22 @@ func (r *userRepository) List(ctx context.Context, opts ListOptions) ([]SystemUs
 
 	return users, nil
 }
+
+func (r *userRepository) Delete(ctx context.Context, id int64) error {
+	query := `DELETE FROM system_users WHERE id = ?`
+	
+	result, err := r.db.ExecContext(ctx, query, id)
+	if err != nil {
+		return fmt.Errorf("failed to delete user: %w", err)
+	}
+
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return fmt.Errorf("failed to get rows affected: %w", err)
+	}
+	if rows == 0 {
+		return fmt.Errorf("user not found")
+	}
+
+	return nil
+}

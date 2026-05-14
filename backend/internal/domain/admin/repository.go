@@ -15,6 +15,7 @@ type UserRepository interface {
 	FindByID(ctx context.Context, id int64) (*SystemUser, error)
 	FindByLogin(ctx context.Context, login string) (*SystemUser, error)
 	List(ctx context.Context, opts ListOptions) ([]SystemUser, error)
+	Delete(ctx context.Context, id int64) error
 }
 
 // GroupRepository define operações de CRUD para SystemGroup.

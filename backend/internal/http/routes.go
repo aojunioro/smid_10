@@ -71,9 +71,26 @@ func setupAuthRoutes(v1 *echo.Group, cfg *config.Config, pools *db.Pools, logger
 
 // setupProtectedRoutes configura rotas protegidas por autenticação JWT.
 func setupProtectedRoutes(v1 *echo.Group, pools *db.Pools) {
-	// Rotas protegidas serão adicionadas aqui
-	// Exemplo:
-	// protected := v1.Group("")
-	// protected.Use(echomiddleware.JWT(cfg.JWT.Secret))
-	// protected.GET("/users", userHandler.List)
+	// Obter pool de conexão do banco permission
+	permissionDB, err := pools.Get(db.AliasPermission)
+	if err != nil {
+		panic(err)
+	}
+
+	// Criar repositório de usuário
+	userRepo := admin.NewUserRepository(permissionDB, common.DBAlias(db.AliasPermission))
+
+	// Criar serviço de usuário
+	userService := admin.NewUserService(userRepo)
+
+	// Criar handler de usuário
+	userHandler := handlers.NewUserHandler(userService)
+
+	// Rotas de usuários (protegidas por JWT)
+	users := v1.Group("/users")
+	users.GET("", userHandler.ListUsers)
+	users.GET("/:id", userHandler.GetUser)
+	users.POST("", userHandler.CreateUser)
+	users.PUT("/:id", userHandler.UpdateUser)
+	users.DELETE("/:id", userHandler.DeleteUser)
 }
