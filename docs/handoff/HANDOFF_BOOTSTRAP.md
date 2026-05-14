@@ -128,6 +128,28 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 
 **Nota**: O login está funcionando corretamente em https://api.s10.smydi.com.br/api/v1/auth/login. As credenciais de teste são login: admin, senha: Admin123!. Todos os endpoints CRUD de usuários, grupos, papéis, programas e unidades estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
 
+### Backend (Fase 0.4 — Plataformas Transversais) — concluído em 2026-05-14
+
+1. ~~Ler SPEC_LOG e planejar implementação~~ — concluído
+2. ~~Criar banco de dados log e tabelas (system_access_log, system_change_log, system_sql_log, system_request_log, system_access_notification_log, system_schedule_log, system_sql_changes)~~ — concluído
+3. ~~Implementar leitura de SystemAccessLog~~ — concluído (GET /api/v1/logs/access)
+4. ~~Implementar leitura de SystemChangeLog~~ — concluído (GET /api/v1/logs/change)
+5. ~~Implementar leitura de SystemSqlLog~~ — concluído (GET /api/v1/logs/sql)
+6. ~~Deploy e testar endpoints de logs~~ — concluído
+
+7. ~~Ler SPEC_COMMUNICATION e planejar implementação~~ — concluído
+8. ~~Criar banco de dados communication e tabelas (system_notification, system_message)~~ — concluído
+9. ~~Implementar CRUD de SystemNotification~~ — concluído (POST /api/v1/notifications, GET /api/v1/notifications, GET /api/v1/notifications/:id, PUT /api/v1/notifications/:id)
+10. ~~Implementar CRUD de SystemMessage~~ — concluído (POST /api/v1/messages, GET /api/v1/messages, GET /api/v1/messages/:id, PUT /api/v1/messages/:id)
+11. ~~Deploy e testar endpoints de comunicação~~ — concluído
+
+12. ~~Ler SPEC_TAREFAS e planejar implementação~~ — concluído
+13. ~~Criar banco de dados smid e tabela tarefas~~ — concluído
+14. ~~Implementar CRUD de Tarefa~~ — concluído (POST /api/v1/tarefas, GET /api/v1/tarefas, GET /api/v1/tarefas/:id, PUT /api/v1/tarefas/:id)
+15. ~~Deploy e testar endpoints de tarefas~~ — concluído
+
+**Nota**: Todos os endpoints de logs, comunicação e tarefas estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
+
 ### Frontend (Fase 0.1 do frontend)
 
 1. ~~Scaffold do `shadcn-admin` em `frontend/` (opção A do `frontend/README.md`)~~ — concluído
