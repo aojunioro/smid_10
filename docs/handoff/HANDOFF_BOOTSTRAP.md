@@ -118,8 +118,10 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 12. ~~Adicionar colunas faltantes na tabela system_users~~ — concluído
 13. ~~Corrigir SystemUser para usar ponteiros em campos nullable~~ — concluído
 14. ~~Testar endpoint de login com sucesso~~ — concluído (POST /api/v1/auth/login retornando JWT)
+15. ~~Implementar CRUD de usuários (Create, Read, Update, Delete)~~ — concluído (POST /api/v1/users, GET /api/v1/users, GET /api/v1/users/:id, PUT /api/v1/users/:id, DELETE /api/v1/users/:id)
+16. ~~Reverter CI para Docker Hub devido a problema com GHCR~~ — concluído
 
-**Nota**: O login está funcionando corretamente em https://api.s10.smydi.com.br/api/v1/auth/login. As credenciais de teste são login: admin, senha: Admin123!.
+**Nota**: O login está funcionando corretamente em https://api.s10.smydi.com.br/api/v1/auth/login. As credenciais de teste são login: admin, senha: Admin123!. O CRUD de usuários está funcionando corretamente em https://api.s10.smydi.com.br/api/v1/users.
 
 ### Frontend (Fase 0.1 do frontend)
 
