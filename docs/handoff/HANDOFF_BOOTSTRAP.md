@@ -168,6 +168,21 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 
 **Nota**: Todos os endpoints de leads estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/. O nginx do frontend foi configurado para fazer proxy das requisições /api para o backend.
 
+### Backend (Fase 0.6 — Plataformas de Negócio) — concluído em 2026-05-14
+
+1. ~~Ler SPEC_VISITAS e planejar implementação~~ — concluído
+2. ~~Verificar tabelas existentes no banco smid~~ — concluído
+3. ~~Criar tabelas faltantes (visitas, visita_checkin_event, pos_visita)~~ — concluído
+4. ~~Atualizar entidades Visita, VisitaCheckinEvent, PosVisita~~ — concluído
+5. ~~Implementar repositório VisitaRepository~~ — concluído
+6. ~~Implementar serviço VisitaService~~ — concluído
+7. ~~Implementar handler VisitaHandler~~ — concluído
+8. ~~Adicionar rotas de visitas no routes.go~~ — concluído
+9. ~~Corrigir erros de SQL usando sql.NullTime~~ — concluído
+10. ~~Deploy e testar endpoints de visitas~~ — concluído (POST /api/v1/visitas, GET /api/v1/visitas, GET /api/v1/visitas/:id, PUT /api/v1/visitas/:id, DELETE /api/v1/visitas/:id)
+
+**Nota**: Todos os endpoints de visitas estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
+
 ### Frontend (Fase 0.1 do frontend)
 
 1. ~~Scaffold do `shadcn-admin` em `frontend/` (opção A do `frontend/README.md`)~~ — concluído
