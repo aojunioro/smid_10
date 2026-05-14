@@ -14,6 +14,7 @@ import (
 	"github.com/aojunioro/smid_10/backend/internal/domain/leads"
 	"github.com/aojunioro/smid_10/backend/internal/domain/log"
 	"github.com/aojunioro/smid_10/backend/internal/domain/tarefas"
+	"github.com/aojunioro/smid_10/backend/internal/domain/visitas"
 	"github.com/aojunioro/smid_10/backend/internal/http/handlers"
 	"github.com/aojunioro/smid_10/backend/internal/http/middleware"
 )
@@ -261,4 +262,21 @@ func setupProtectedRoutes(v1 *echo.Group, pools *db.Pools) {
 	leads.GET("/:id", leadHandler.GetLead)
 	leads.POST("", leadHandler.CreateLead)
 	leads.PUT("/:id", leadHandler.UpdateLead)
+
+	// Criar repositório de visita
+	visitaRepo := visitas.NewVisitaRepository(smidDB, common.DBAlias(db.AliasSmid))
+
+	// Criar serviço de visita
+	visitaService := visitas.NewVisitaService(visitaRepo)
+
+	// Criar handler de visita
+	visitaHandler := handlers.NewVisitaHandler(visitaService)
+
+	// Rotas de visitas (protegidas por JWT)
+	visitas := v1.Group("/visitas")
+	visitas.GET("", visitaHandler.ListVisitas)
+	visitas.GET("/:id", visitaHandler.GetVisita)
+	visitas.POST("", visitaHandler.CreateVisita)
+	visitas.PUT("/:id", visitaHandler.UpdateVisita)
+	visitas.DELETE("/:id", visitaHandler.DeleteVisita)
 }
