@@ -7,6 +7,11 @@ on:
       - "backend/**"
       - ".github/workflows/backend-build.yml"
   workflow_dispatch:
+    inputs:
+      force_tag:
+        description: 'Force specific tag (e.g., dev)'
+        required: false
+        default: 'dev'
 
 permissions:
   contents: read
@@ -44,7 +49,7 @@ jobs:
           tags: |
             type=ref,event=branch
             type=sha,prefix=sha-
-            type=raw,value=dev,enable={{is_default_branch}}
+            type=raw,value=dev,enable=${{ github.ref == 'refs/heads/main' }}
 
       - name: Build and push
         uses: docker/build-push-action@v6
