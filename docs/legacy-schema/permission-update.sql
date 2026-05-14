@@ -164,6 +164,8 @@ ALTER TABLE system_user add column phone varchar(256);
 ALTER TABLE system_user add column address varchar(256);
 ALTER TABLE system_user add column about varchar(256);
 ALTER TABLE system_user add column function_name varchar(255);
+ALTER TABLE system_user add column frontpage_id int;
+ALTER TABLE system_user add column equipe_id int;
 
 CREATE TABLE system_user_old_password (
     id int PRIMARY KEY NOT NULL,

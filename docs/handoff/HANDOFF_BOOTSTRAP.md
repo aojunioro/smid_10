@@ -98,9 +98,28 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 
 ### Backend (Fase 0.2+)
 
-1. Middleware de logging estruturado por requisição (request_id, latência, status)
-2. Repositórios atrás de interfaces (preparação para ADR 0004 — Postgres pós-cutover)
-3. Setup de testes com `testcontainers` para repositórios
+1. ~~Middleware de logging estruturado por requisição (request_id, latência, status)~~ — concluído
+2. ~~Repositórios atrás de interfaces (preparação para ADR 0004 — Postgres pós-cutover)~~ — concluído
+3. ~~Setup de testes com `testcontainers` para repositórios~~ — concluído
+
+### Backend (Fase 0.3 — Plataforma Admin) — concluído em 2026-05-13
+
+1. ~~Ler SPEC_ADMIN e planejar implementação~~ — concluído
+2. ~~Criar entidades SystemUser, SystemGroup, SystemRole~~ — concluído
+3. ~~Criar repositórios para Admin (banco permission)~~ — concluído
+4. ~~Criar script de migração para tabelas admin~~ — concluído
+5. ~~Redefinir senhas do MariaDB e aplicar migração~~ — concluído
+6. ~~Atualizar secrets do Swarm com novas senhas e deploy~~ — concluído
+7. ~~Implementar serviço de autenticação (login, JWT)~~ — concluído
+8. ~~Criar handler REST para login e rotas~~ — concluído
+9. ~~Corrigir erros de compilação e build do backend~~ — concluído
+10. ~~Deploy da nova imagem na VPS~~ — concluído
+11. ~~Corrigir configuração CORS e testar login~~ — concluído
+12. ~~Adicionar colunas faltantes na tabela system_users~~ — concluído
+13. ~~Corrigir SystemUser para usar ponteiros em campos nullable~~ — concluído
+14. ~~Testar endpoint de login com sucesso~~ — concluído (POST /api/v1/auth/login retornando JWT)
+
+**Nota**: O login está funcionando corretamente em https://api.s10.smydi.com.br/api/v1/auth/login. As credenciais de teste são login: admin, senha: Admin123!.
 
 ### Frontend (Fase 0.1 do frontend)
 
@@ -186,4 +205,4 @@ pnpm dev
 
 ---
 
-**Status**: Fase 0.1 do backend concluída; ambiente de deploy preparado; aguardando deploy efetivo na VPS e início do scaffold do frontend
+**Status**: Fase 0.1 do backend concluída; Fase 0.2 do backend concluída; Fase 0.3 (Plataforma Admin) concluída com login funcionando; ambiente de deploy operacional em VPS; frontend Fase 0.1 concluída
