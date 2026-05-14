@@ -69,12 +69,14 @@ func (r *visitaRepository) Create(ctx context.Context, visita *Visita) error {
 // FindByID busca uma visita por ID.
 func (r *visitaRepository) FindByID(ctx context.Context, id int64) (*Visita, error) {
 	query := fmt.Sprintf(`
-		SELECT id, lead_id, status_id, login_recep, login_repre, dt_visita, hr_visita, confirm, login_conf, dt_confirm, interesse, hist_feito, pos_feito, stts_lead, criado_em, COALESCE(alterado_em, '1970-01-01 00:00:00'), COALESCE(excluido_em, '1970-01-01 00:00:00')
+		SELECT id, lead_id, status_id, login_recep, login_repre, dt_visita, hr_visita, confirm, login_conf, dt_confirm, interesse, hist_feito, pos_feito, stts_lead, criado_em, alterado_em, excluido_em
 		FROM %s
 		WHERE id = ? AND excluido_em IS NULL
 	`, r.table)
 
 	var visita Visita
+	var dtConfirm sql.NullTime
+	var alteradoEm, excluidoEm sql.NullTime
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&visita.ID,
 		&visita.LeadID,
@@ -85,14 +87,14 @@ func (r *visitaRepository) FindByID(ctx context.Context, id int64) (*Visita, err
 		&visita.HrVisita,
 		&visita.Confirm,
 		&visita.LoginConf,
-		&visita.DtConfirm,
+		&dtConfirm,
 		&visita.Interesse,
 		&visita.HistFeito,
 		&visita.PosFeito,
 		&visita.SttsLead,
 		&visita.CriadoEm,
-		&visita.AlteradoEm,
-		&visita.ExcluidoEm,
+		&alteradoEm,
+		&excluidoEm,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -101,12 +103,14 @@ func (r *visitaRepository) FindByID(ctx context.Context, id int64) (*Visita, err
 		return nil, fmt.Errorf("erro ao buscar visita por ID: %w", err)
 	}
 
-	// Converter data padrão para nil se for 1970-01-01
-	if visita.AlteradoEm != nil && visita.AlteradoEm.Year() == 1970 {
-		visita.AlteradoEm = nil
+	if dtConfirm.Valid {
+		visita.DtConfirm = &dtConfirm.Time
 	}
-	if visita.ExcluidoEm != nil && visita.ExcluidoEm.Year() == 1970 {
-		visita.ExcluidoEm = nil
+	if alteradoEm.Valid {
+		visita.AlteradoEm = &alteradoEm.Time
+	}
+	if excluidoEm.Valid {
+		visita.ExcluidoEm = &excluidoEm.Time
 	}
 
 	return &visita, nil
@@ -139,7 +143,7 @@ func (r *visitaRepository) List(ctx context.Context, opts ListOptions) ([]Visita
 	}
 
 	query := fmt.Sprintf(`
-		SELECT id, lead_id, status_id, login_recep, login_repre, dt_visita, hr_visita, confirm, login_conf, dt_confirm, interesse, hist_feito, pos_feito, stts_lead, criado_em, COALESCE(alterado_em, '1970-01-01 00:00:00'), COALESCE(excluido_em, '1970-01-01 00:00:00')
+		SELECT id, lead_id, status_id, login_recep, login_repre, dt_visita, hr_visita, confirm, login_conf, dt_confirm, interesse, hist_feito, pos_feito, stts_lead, criado_em, alterado_em, excluido_em
 		FROM %s
 		WHERE %s
 		ORDER BY dt_visita DESC, hr_visita DESC
@@ -157,6 +161,8 @@ func (r *visitaRepository) List(ctx context.Context, opts ListOptions) ([]Visita
 	var visitas []Visita
 	for rows.Next() {
 		var visita Visita
+		var dtConfirm sql.NullTime
+		var alteradoEm, excluidoEm sql.NullTime
 		err := rows.Scan(
 			&visita.ID,
 			&visita.LeadID,
@@ -167,25 +173,27 @@ func (r *visitaRepository) List(ctx context.Context, opts ListOptions) ([]Visita
 			&visita.HrVisita,
 			&visita.Confirm,
 			&visita.LoginConf,
-			&visita.DtConfirm,
+			&dtConfirm,
 			&visita.Interesse,
 			&visita.HistFeito,
 			&visita.PosFeito,
 			&visita.SttsLead,
 			&visita.CriadoEm,
-			&visita.AlteradoEm,
-			&visita.ExcluidoEm,
+			&alteradoEm,
+			&excluidoEm,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao escanear visita: %w", err)
 		}
 
-		// Converter data padrão para nil se for 1970-01-01
-		if visita.AlteradoEm != nil && visita.AlteradoEm.Year() == 1970 {
-			visita.AlteradoEm = nil
+		if dtConfirm.Valid {
+			visita.DtConfirm = &dtConfirm.Time
 		}
-		if visita.ExcluidoEm != nil && visita.ExcluidoEm.Year() == 1970 {
-			visita.ExcluidoEm = nil
+		if alteradoEm.Valid {
+			visita.AlteradoEm = &alteradoEm.Time
+		}
+		if excluidoEm.Valid {
+			visita.ExcluidoEm = &excluidoEm.Time
 		}
 
 		visitas = append(visitas, visita)

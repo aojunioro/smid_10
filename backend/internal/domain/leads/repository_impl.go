@@ -115,16 +115,17 @@ func (r *leadRepository) Update(ctx context.Context, lead *Lead) error {
 // FindByID busca um lead por ID.
 func (r *leadRepository) FindByID(ctx context.Context, id int64) (*Lead, error) {
 	query := fmt.Sprintf(`
-		SELECT id, fone1, starttime, fone2, nome, profissao, idade, patologia, nome_acomp, profis_acomp, idd_acomp, pato_acomp, midia_id, tent_id, contato_ok, status_id, unidd_id, meio_id, mot_pend_id, mot_perd_id, email, obs_curta_lead, login, login_recep, login_super, criado_em, COALESCE(alterado_em, '1970-01-01 00:00:00'), COALESCE(excluido_em, '1970-01-01 00:00:00')
+		SELECT id, fone1, starttime, fone2, nome, profissao, idade, patologia, nome_acomp, profis_acomp, idd_acomp, pato_acomp, midia_id, tent_id, contato_ok, status_id, unidd_id, meio_id, mot_pend_id, mot_perd_id, email, obs_curta_lead, login, login_recep, login_super, criado_em, alterado_em, excluido_em
 		FROM %s
 		WHERE id = ? AND excluido_em IS NULL
 	`, r.table)
 
 	var lead Lead
+	var startTime, alteradoEm, excluidoEm sql.NullTime
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&lead.ID,
 		&lead.Fone1,
-		&lead.StartTime,
+		&startTime,
 		&lead.Fone2,
 		&lead.Nome,
 		&lead.Profissao,
@@ -148,8 +149,8 @@ func (r *leadRepository) FindByID(ctx context.Context, id int64) (*Lead, error) 
 		&lead.LoginRecep,
 		&lead.LoginSuper,
 		&lead.CriadoEm,
-		&lead.AlteradoEm,
-		&lead.ExcluidoEm,
+		&alteradoEm,
+		&excluidoEm,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -158,12 +159,14 @@ func (r *leadRepository) FindByID(ctx context.Context, id int64) (*Lead, error) 
 		return nil, fmt.Errorf("erro ao buscar lead por ID: %w", err)
 	}
 
-	// Converter data padrão para nil se for 1970-01-01
-	if lead.AlteradoEm != nil && lead.AlteradoEm.Year() == 1970 {
-		lead.AlteradoEm = nil
+	if startTime.Valid {
+		lead.StartTime = &startTime.Time
 	}
-	if lead.ExcluidoEm != nil && lead.ExcluidoEm.Year() == 1970 {
-		lead.ExcluidoEm = nil
+	if alteradoEm.Valid {
+		lead.AlteradoEm = &alteradoEm.Time
+	}
+	if excluidoEm.Valid {
+		lead.ExcluidoEm = &excluidoEm.Time
 	}
 
 	return &lead, nil
@@ -189,7 +192,7 @@ func (r *leadRepository) List(ctx context.Context, opts ListOptions) ([]Lead, er
 	}
 
 	query := fmt.Sprintf(`
-		SELECT id, fone1, starttime, fone2, nome, profissao, idade, patologia, nome_acomp, profis_acomp, idd_acomp, pato_acomp, midia_id, tent_id, contato_ok, status_id, unidd_id, meio_id, mot_pend_id, mot_perd_id, email, obs_curta_lead, login, login_recep, login_super, criado_em, COALESCE(alterado_em, '1970-01-01 00:00:00'), COALESCE(excluido_em, '1970-01-01 00:00:00')
+		SELECT id, fone1, starttime, fone2, nome, profissao, idade, patologia, nome_acomp, profis_acomp, idd_acomp, pato_acomp, midia_id, tent_id, contato_ok, status_id, unidd_id, meio_id, mot_pend_id, mot_perd_id, email, obs_curta_lead, login, login_recep, login_super, criado_em, alterado_em, excluido_em
 		FROM %s
 		WHERE %s
 		ORDER BY criado_em DESC
@@ -207,10 +210,11 @@ func (r *leadRepository) List(ctx context.Context, opts ListOptions) ([]Lead, er
 	var leads []Lead
 	for rows.Next() {
 		var lead Lead
+		var startTime, alteradoEm, excluidoEm sql.NullTime
 		err := rows.Scan(
 			&lead.ID,
 			&lead.Fone1,
-			&lead.StartTime,
+			&startTime,
 			&lead.Fone2,
 			&lead.Nome,
 			&lead.Profissao,
@@ -234,19 +238,21 @@ func (r *leadRepository) List(ctx context.Context, opts ListOptions) ([]Lead, er
 			&lead.LoginRecep,
 			&lead.LoginSuper,
 			&lead.CriadoEm,
-			&lead.AlteradoEm,
-			&lead.ExcluidoEm,
+			&alteradoEm,
+			&excluidoEm,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao escanear lead: %w", err)
 		}
 
-		// Converter data padrão para nil se for 1970-01-01
-		if lead.AlteradoEm != nil && lead.AlteradoEm.Year() == 1970 {
-			lead.AlteradoEm = nil
+		if startTime.Valid {
+			lead.StartTime = &startTime.Time
 		}
-		if lead.ExcluidoEm != nil && lead.ExcluidoEm.Year() == 1970 {
-			lead.ExcluidoEm = nil
+		if alteradoEm.Valid {
+			lead.AlteradoEm = &alteradoEm.Time
+		}
+		if excluidoEm.Valid {
+			lead.ExcluidoEm = &excluidoEm.Time
 		}
 
 		leads = append(leads, lead)
