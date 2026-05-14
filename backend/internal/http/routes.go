@@ -12,6 +12,7 @@ import (
 	"github.com/aojunioro/smid_10/backend/internal/domain/common"
 	"github.com/aojunioro/smid_10/backend/internal/domain/communication"
 	"github.com/aojunioro/smid_10/backend/internal/domain/log"
+	"github.com/aojunioro/smid_10/backend/internal/domain/tarefas"
 	"github.com/aojunioro/smid_10/backend/internal/http/handlers"
 	"github.com/aojunioro/smid_10/backend/internal/http/middleware"
 )
@@ -221,4 +222,26 @@ func setupProtectedRoutes(v1 *echo.Group, pools *db.Pools) {
 	messages.GET("/:id", messageHandler.GetMessage)
 	messages.POST("", messageHandler.CreateMessage)
 	messages.PUT("/:id", messageHandler.UpdateMessage)
+
+	// Obter pool de conexão do banco smid
+	smidDB, err := pools.Get(db.AliasSmid)
+	if err != nil {
+		panic(err)
+	}
+
+	// Criar repositório de tarefa
+	tarefaRepo := tarefas.NewTarefaRepository(smidDB, common.DBAlias(db.AliasSmid))
+
+	// Criar serviço de tarefa
+	tarefaService := tarefas.NewTarefaService(tarefaRepo)
+
+	// Criar handler de tarefa
+	tarefaHandler := handlers.NewTarefaHandler(tarefaService)
+
+	// Rotas de tarefas (protegidas por JWT)
+	tarefas := v1.Group("/tarefas")
+	tarefas.GET("", tarefaHandler.ListTarefas)
+	tarefas.GET("/:id", tarefaHandler.GetTarefa)
+	tarefas.POST("", tarefaHandler.CreateTarefa)
+	tarefas.PUT("/:id", tarefaHandler.UpdateTarefa)
 }
