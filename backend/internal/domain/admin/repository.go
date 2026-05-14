@@ -26,6 +26,7 @@ type GroupRepository interface {
 	Update(ctx context.Context, group *SystemGroup) error
 	FindByID(ctx context.Context, id int64) (*SystemGroup, error)
 	List(ctx context.Context, opts ListOptions) ([]SystemGroup, error)
+	Delete(ctx context.Context, id int64) error
 }
 
 // RoleRepository define operações de CRUD para SystemRole.
@@ -36,6 +37,7 @@ type RoleRepository interface {
 	Update(ctx context.Context, role *SystemRole) error
 	FindByID(ctx context.Context, id int64) (*SystemRole, error)
 	List(ctx context.Context, opts ListOptions) ([]SystemRole, error)
+	Delete(ctx context.Context, id int64) error
 }
 
 // UnitRepository define operações de CRUD para SystemUnit.
@@ -46,6 +48,18 @@ type UnitRepository interface {
 	Update(ctx context.Context, unit *SystemUnit) error
 	FindByID(ctx context.Context, id int64) (*SystemUnit, error)
 	List(ctx context.Context, opts ListOptions) ([]SystemUnit, error)
+	Delete(ctx context.Context, id int64) error
+}
+
+// ProgramRepository define operações de CRUD para SystemProgram.
+type ProgramRepository interface {
+	common.Repository
+
+	Create(ctx context.Context, program *SystemProgram) error
+	Update(ctx context.Context, program *SystemProgram) error
+	FindByID(ctx context.Context, id int64) (*SystemProgram, error)
+	List(ctx context.Context, opts ListOptions) ([]SystemProgram, error)
+	Delete(ctx context.Context, id int64) error
 }
 
 // ListOptions define opções para listagem paginada.

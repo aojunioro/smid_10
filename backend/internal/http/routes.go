@@ -93,4 +93,72 @@ func setupProtectedRoutes(v1 *echo.Group, pools *db.Pools) {
 	users.POST("", userHandler.CreateUser)
 	users.PUT("/:id", userHandler.UpdateUser)
 	users.DELETE("/:id", userHandler.DeleteUser)
+
+	// Criar repositório de grupo
+	groupRepo := admin.NewGroupRepository(permissionDB, common.DBAlias(db.AliasPermission))
+
+	// Criar serviço de grupo
+	groupService := admin.NewGroupService(groupRepo)
+
+	// Criar handler de grupo
+	groupHandler := handlers.NewGroupHandler(groupService)
+
+	// Rotas de grupos (protegidas por JWT)
+	groups := v1.Group("/groups")
+	groups.GET("", groupHandler.ListGroups)
+	groups.GET("/:id", groupHandler.GetGroup)
+	groups.POST("", groupHandler.CreateGroup)
+	groups.PUT("/:id", groupHandler.UpdateGroup)
+	groups.DELETE("/:id", groupHandler.DeleteGroup)
+
+	// Criar repositório de papel
+	roleRepo := admin.NewRoleRepository(permissionDB, common.DBAlias(db.AliasPermission))
+
+	// Criar serviço de papel
+	roleService := admin.NewRoleService(roleRepo)
+
+	// Criar handler de papel
+	roleHandler := handlers.NewRoleHandler(roleService)
+
+	// Rotas de papéis (protegidas por JWT)
+	roles := v1.Group("/roles")
+	roles.GET("", roleHandler.ListRoles)
+	roles.GET("/:id", roleHandler.GetRole)
+	roles.POST("", roleHandler.CreateRole)
+	roles.PUT("/:id", roleHandler.UpdateRole)
+	roles.DELETE("/:id", roleHandler.DeleteRole)
+
+	// Criar repositório de programa
+	programRepo := admin.NewProgramRepository(permissionDB, common.DBAlias(db.AliasPermission))
+
+	// Criar serviço de programa
+	programService := admin.NewProgramService(programRepo)
+
+	// Criar handler de programa
+	programHandler := handlers.NewProgramHandler(programService)
+
+	// Rotas de programas (protegidas por JWT)
+	programs := v1.Group("/programs")
+	programs.GET("", programHandler.ListPrograms)
+	programs.GET("/:id", programHandler.GetProgram)
+	programs.POST("", programHandler.CreateProgram)
+	programs.PUT("/:id", programHandler.UpdateProgram)
+	programs.DELETE("/:id", programHandler.DeleteProgram)
+
+	// Criar repositório de unidade
+	unitRepo := admin.NewUnitRepository(permissionDB, common.DBAlias(db.AliasPermission))
+
+	// Criar serviço de unidade
+	unitService := admin.NewUnitService(unitRepo)
+
+	// Criar handler de unidade
+	unitHandler := handlers.NewUnitHandler(unitService)
+
+	// Rotas de unidades (protegidas por JWT)
+	units := v1.Group("/units")
+	units.GET("", unitHandler.ListUnits)
+	units.GET("/:id", unitHandler.GetUnit)
+	units.POST("", unitHandler.CreateUnit)
+	units.PUT("/:id", unitHandler.UpdateUnit)
+	units.DELETE("/:id", unitHandler.DeleteUnit)
 }
