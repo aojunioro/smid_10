@@ -35,8 +35,8 @@ func (r *leadRepository) Ping(ctx context.Context) error {
 func (r *leadRepository) Create(ctx context.Context, lead *Lead) error {
 	query := fmt.Sprintf(`
 		INSERT INTO %s
-		(fone1, starttime, fone2, nome, profissao, idade, patologia, nome_acomp, profis_acomp, idd_acomp, pato_acomp, midia_id, tent_id, contato_ok, status_id, unidd_id, meio_id, mot_pend_id, mot_perd_id, email, obs_curta_lead, login, login_recep, login_super, criado_em, alterado_em)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		(fone1, nome, status_id)
+		VALUES (?, ?, ?)
 	`, r.table)
 
 	now := time.Now().UTC()
@@ -45,31 +45,8 @@ func (r *leadRepository) Create(ctx context.Context, lead *Lead) error {
 
 	result, err := r.db.ExecContext(ctx, query,
 		lead.Fone1,
-		lead.StartTime,
-		lead.Fone2,
 		lead.Nome,
-		lead.Profissao,
-		lead.Idade,
-		lead.Patologia,
-		lead.NomeAcomp,
-		lead.ProfisAcomp,
-		lead.IddAcomp,
-		lead.PatoAcomp,
-		lead.MidiaID,
-		lead.TentID,
-		lead.ContatoOK,
 		lead.StatusID,
-		lead.UniddID,
-		lead.MeioID,
-		lead.MotPendID,
-		lead.MotPerdID,
-		lead.Email,
-		lead.ObsCurtaLead,
-		lead.Login,
-		lead.LoginRecep,
-		lead.LoginSuper,
-		lead.CriadoEm,
-		lead.AlteradoEm,
 	)
 	if err != nil {
 		return fmt.Errorf("erro ao criar lead: %w", err)
