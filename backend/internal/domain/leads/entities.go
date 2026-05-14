@@ -30,7 +30,7 @@ type Lead struct {
 	LoginRecep    *string    `json:"login_recep"`
 	LoginSuper    *string    `json:"login_super"`
 	CriadoEm      time.Time  `json:"criado_em"`
-	AlteradoEm    time.Time  `json:"alterado_em"`
+	AlteradoEm    *time.Time `json:"alterado_em"`
 	ExcluidoEm    *time.Time `json:"excluido_em"`
 }
 

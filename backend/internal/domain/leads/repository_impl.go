@@ -39,10 +39,6 @@ func (r *leadRepository) Create(ctx context.Context, lead *Lead) error {
 		VALUES (?, ?, ?, ?)
 	`, r.table)
 
-	now := time.Now().UTC()
-	lead.CriadoEm = now
-	lead.AlteradoEm = now
-
 	result, err := r.db.ExecContext(ctx, query,
 		lead.Fone1,
 		lead.Nome,
@@ -70,7 +66,8 @@ func (r *leadRepository) Update(ctx context.Context, lead *Lead) error {
 		WHERE id = ? AND excluido_em IS NULL
 	`, r.table)
 
-	lead.AlteradoEm = time.Now().UTC()
+	now := time.Now().UTC()
+	lead.AlteradoEm = &now
 
 	result, err := r.db.ExecContext(ctx, query,
 		lead.Fone1,
@@ -124,10 +121,11 @@ func (r *leadRepository) FindByID(ctx context.Context, id int64) (*Lead, error) 
 	`, r.table)
 
 	var lead Lead
+	var startTime, alteradoEm, excluidoEm sql.NullTime
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&lead.ID,
 		&lead.Fone1,
-		&lead.StartTime,
+		&startTime,
 		&lead.Fone2,
 		&lead.Nome,
 		&lead.Profissao,
@@ -151,14 +149,24 @@ func (r *leadRepository) FindByID(ctx context.Context, id int64) (*Lead, error) 
 		&lead.LoginRecep,
 		&lead.LoginSuper,
 		&lead.CriadoEm,
-		&lead.AlteradoEm,
-		&lead.ExcluidoEm,
+		&alteradoEm,
+		&excluidoEm,
 	)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, nil
 		}
 		return nil, fmt.Errorf("erro ao buscar lead por ID: %w", err)
+	}
+
+	if startTime.Valid {
+		lead.StartTime = &startTime.Time
+	}
+	if alteradoEm.Valid {
+		lead.AlteradoEm = &alteradoEm.Time
+	}
+	if excluidoEm.Valid {
+		lead.ExcluidoEm = &excluidoEm.Time
 	}
 
 	return &lead, nil
@@ -202,10 +210,11 @@ func (r *leadRepository) List(ctx context.Context, opts ListOptions) ([]Lead, er
 	var leads []Lead
 	for rows.Next() {
 		var lead Lead
+		var startTime, alteradoEm, excluidoEm sql.NullTime
 		err := rows.Scan(
 			&lead.ID,
 			&lead.Fone1,
-			&lead.StartTime,
+			&startTime,
 			&lead.Fone2,
 			&lead.Nome,
 			&lead.Profissao,
@@ -229,12 +238,23 @@ func (r *leadRepository) List(ctx context.Context, opts ListOptions) ([]Lead, er
 			&lead.LoginRecep,
 			&lead.LoginSuper,
 			&lead.CriadoEm,
-			&lead.AlteradoEm,
-			&lead.ExcluidoEm,
+			&alteradoEm,
+			&excluidoEm,
 		)
 		if err != nil {
 			return nil, fmt.Errorf("erro ao escanear lead: %w", err)
 		}
+
+		if startTime.Valid {
+			lead.StartTime = &startTime.Time
+		}
+		if alteradoEm.Valid {
+			lead.AlteradoEm = &alteradoEm.Time
+		}
+		if excluidoEm.Valid {
+			lead.ExcluidoEm = &excluidoEm.Time
+		}
+
 		leads = append(leads, lead)
 	}
 
