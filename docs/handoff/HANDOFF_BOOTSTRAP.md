@@ -119,9 +119,14 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 13. ~~Corrigir SystemUser para usar ponteiros em campos nullable~~ — concluído
 14. ~~Testar endpoint de login com sucesso~~ — concluído (POST /api/v1/auth/login retornando JWT)
 15. ~~Implementar CRUD de usuários (Create, Read, Update, Delete)~~ — concluído (POST /api/v1/users, GET /api/v1/users, GET /api/v1/users/:id, PUT /api/v1/users/:id, DELETE /api/v1/users/:id)
-16. ~~Reverter CI para Docker Hub devido a problema com GHCR~~ — concluído
+16. ~~Implementar CRUD de grupos (SystemGroup)~~ — concluído (POST /api/v1/groups, GET /api/v1/groups, GET /api/v1/groups/:id, PUT /api/v1/groups/:id, DELETE /api/v1/groups/:id)
+17. ~~Implementar CRUD de papéis (SystemRole)~~ — concluído (POST /api/v1/roles, GET /api/v1/roles, GET /api/v1/roles/:id, PUT /api/v1/roles/:id, DELETE /api/v1/roles/:id)
+18. ~~Implementar CRUD de programas (SystemProgram)~~ — concluído (POST /api/v1/programs, GET /api/v1/programs, GET /api/v1/programs/:id, PUT /api/v1/programs/:id, DELETE /api/v1/programs/:id)
+19. ~~Implementar CRUD de unidades (SystemUnit)~~ — concluído (POST /api/v1/units, GET /api/v1/units, GET /api/v1/units/:id, PUT /api/v1/units/:id, DELETE /api/v1/units/:id)
+20. ~~Criar tabelas faltantes no banco de dados~~ — concluído (system_groups, system_roles, system_programs, system_units)
+21. ~~Reverter CI para Docker Hub devido a problema com GHCR~~ — concluído
 
-**Nota**: O login está funcionando corretamente em https://api.s10.smydi.com.br/api/v1/auth/login. As credenciais de teste são login: admin, senha: Admin123!. O CRUD de usuários está funcionando corretamente em https://api.s10.smydi.com.br/api/v1/users.
+**Nota**: O login está funcionando corretamente em https://api.s10.smydi.com.br/api/v1/auth/login. As credenciais de teste são login: admin, senha: Admin123!. Todos os endpoints CRUD de usuários, grupos, papéis, programas e unidades estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
 
 ### Frontend (Fase 0.1 do frontend)
 
