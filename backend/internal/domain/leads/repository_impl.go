@@ -14,7 +14,7 @@ import (
 type leadRepository struct {
 	db     *sql.DB
 	alias  common.DBAlias
-	table  string // "lead" (sem prefixo, schema definido pelo DSN)
+	table  string // "leads" (nome da tabela)
 }
 
 // NewLeadRepository cria uma nova instância de LeadRepository.
@@ -22,7 +22,7 @@ func NewLeadRepository(db *sql.DB, alias common.DBAlias) LeadRepository {
 	return &leadRepository{
 		db:    db,
 		alias: alias,
-		table: "lead", // nome da tabela sem prefixo de banco
+		table: "leads", // nome da tabela
 	}
 }
 
@@ -32,29 +32,44 @@ func (r *leadRepository) Ping(ctx context.Context) error {
 }
 
 // Create insere um novo lead no banco de dados.
-// Usa SQL portátil: INSERT com placeholders ?, COALESCE para valores nulos.
 func (r *leadRepository) Create(ctx context.Context, lead *Lead) error {
 	query := fmt.Sprintf(`
 		INSERT INTO %s
-		(nome, telefone, email, status_id, unidade_id, atendente_id, meio_id, midia_id, criado_em, atualizado_em)
-		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+		(fone1, starttime, fone2, nome, profissao, idade, patologia, nome_acomp, profis_acomp, idd_acomp, pato_acomp, midia_id, tent_id, contato_ok, status_id, unidd_id, meio_id, mot_pend_id, mot_perd_id, email, obs_curta_lead, login, login_recep, login_super, criado_em, alterado_em)
+		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 	`, r.table)
 
 	now := time.Now().UTC()
 	lead.CriadoEm = now
-	lead.AtualizadoEm = now
+	lead.AlteradoEm = now
 
 	result, err := r.db.ExecContext(ctx, query,
+		lead.Fone1,
+		lead.StartTime,
+		lead.Fone2,
 		lead.Nome,
-		lead.Telefone,
-		lead.Email,         // sql.NullString tratado automaticamente por *string
+		lead.Profissao,
+		lead.Idade,
+		lead.Patologia,
+		lead.NomeAcomp,
+		lead.ProfisAcomp,
+		lead.IddAcomp,
+		lead.PatoAcomp,
+		lead.MidiaID,
+		lead.TentID,
+		lead.ContatoOK,
 		lead.StatusID,
-		lead.UnidadeID,
-		lead.AtendenteID,
+		lead.UniddID,
 		lead.MeioID,
-		lead.MidiaID,       // sql.NullString tratado automaticamente por *string
+		lead.MotPendID,
+		lead.MotPerdID,
+		lead.Email,
+		lead.ObsCurtaLead,
+		lead.Login,
+		lead.LoginRecep,
+		lead.LoginSuper,
 		lead.CriadoEm,
-		lead.AtualizadoEm,
+		lead.AlteradoEm,
 	)
 	if err != nil {
 		return fmt.Errorf("erro ao criar lead: %w", err)
@@ -70,26 +85,41 @@ func (r *leadRepository) Create(ctx context.Context, lead *Lead) error {
 }
 
 // Update atualiza um lead existente.
-// Usa SQL portátil: UPDATE com placeholders, atualiza atualizado_em.
 func (r *leadRepository) Update(ctx context.Context, lead *Lead) error {
 	query := fmt.Sprintf(`
 		UPDATE %s
-		SET nome = ?, telefone = ?, email = ?, status_id = ?, unidade_id = ?, atendente_id = ?, meio_id = ?, midia_id = ?, atualizado_em = ?
+		SET fone1 = ?, starttime = ?, fone2 = ?, nome = ?, profissao = ?, idade = ?, patologia = ?, nome_acomp = ?, profis_acomp = ?, idd_acomp = ?, pato_acomp = ?, midia_id = ?, tent_id = ?, contato_ok = ?, status_id = ?, unidd_id = ?, meio_id = ?, mot_pend_id = ?, mot_perd_id = ?, email = ?, obs_curta_lead = ?, login = ?, login_recep = ?, login_super = ?, alterado_em = ?
 		WHERE id = ? AND excluido_em IS NULL
 	`, r.table)
 
-	lead.AtualizadoEm = time.Now().UTC()
+	lead.AlteradoEm = time.Now().UTC()
 
 	result, err := r.db.ExecContext(ctx, query,
+		lead.Fone1,
+		lead.StartTime,
+		lead.Fone2,
 		lead.Nome,
-		lead.Telefone,
-		lead.Email,
-		lead.StatusID,
-		lead.UnidadeID,
-		lead.AtendenteID,
-		lead.MeioID,
+		lead.Profissao,
+		lead.Idade,
+		lead.Patologia,
+		lead.NomeAcomp,
+		lead.ProfisAcomp,
+		lead.IddAcomp,
+		lead.PatoAcomp,
 		lead.MidiaID,
-		lead.AtualizadoEm,
+		lead.TentID,
+		lead.ContatoOK,
+		lead.StatusID,
+		lead.UniddID,
+		lead.MeioID,
+		lead.MotPendID,
+		lead.MotPerdID,
+		lead.Email,
+		lead.ObsCurtaLead,
+		lead.Login,
+		lead.LoginRecep,
+		lead.LoginSuper,
+		lead.AlteradoEm,
 		lead.ID,
 	)
 	if err != nil {
@@ -108,10 +138,9 @@ func (r *leadRepository) Update(ctx context.Context, lead *Lead) error {
 }
 
 // FindByID busca um lead por ID.
-// Usa SQL portátil: SELECT com WHERE id = ? AND excluido_em IS NULL.
 func (r *leadRepository) FindByID(ctx context.Context, id int64) (*Lead, error) {
 	query := fmt.Sprintf(`
-		SELECT id, nome, telefone, email, status_id, unidade_id, atendente_id, meio_id, midia_id, criado_em, atualizado_em, excluido_em
+		SELECT id, fone1, starttime, fone2, nome, profissao, idade, patologia, nome_acomp, profis_acomp, idd_acomp, pato_acomp, midia_id, tent_id, contato_ok, status_id, unidd_id, meio_id, mot_pend_id, mot_perd_id, email, obs_curta_lead, login, login_recep, login_super, criado_em, alterado_em, excluido_em
 		FROM %s
 		WHERE id = ? AND excluido_em IS NULL
 	`, r.table)
@@ -119,16 +148,32 @@ func (r *leadRepository) FindByID(ctx context.Context, id int64) (*Lead, error) 
 	var lead Lead
 	err := r.db.QueryRowContext(ctx, query, id).Scan(
 		&lead.ID,
+		&lead.Fone1,
+		&lead.StartTime,
+		&lead.Fone2,
 		&lead.Nome,
-		&lead.Telefone,
-		&lead.Email,
-		&lead.StatusID,
-		&lead.UnidadeID,
-		&lead.AtendenteID,
-		&lead.MeioID,
+		&lead.Profissao,
+		&lead.Idade,
+		&lead.Patologia,
+		&lead.NomeAcomp,
+		&lead.ProfisAcomp,
+		&lead.IddAcomp,
+		&lead.PatoAcomp,
 		&lead.MidiaID,
+		&lead.TentID,
+		&lead.ContatoOK,
+		&lead.StatusID,
+		&lead.UniddID,
+		&lead.MeioID,
+		&lead.MotPendID,
+		&lead.MotPerdID,
+		&lead.Email,
+		&lead.ObsCurtaLead,
+		&lead.Login,
+		&lead.LoginRecep,
+		&lead.LoginSuper,
 		&lead.CriadoEm,
-		&lead.AtualizadoEm,
+		&lead.AlteradoEm,
 		&lead.ExcluidoEm,
 	)
 	if err != nil {
@@ -142,8 +187,6 @@ func (r *leadRepository) FindByID(ctx context.Context, id int64) (*Lead, error) 
 }
 
 // List retorna uma lista paginada de leads com filtros opcionais.
-// Usa SQL portátil: LIMIT n OFFSET m (equivalente a LIMIT x, y do MySQL),
-// COALESCE para valores nulos em filtros.
 func (r *leadRepository) List(ctx context.Context, opts ListOptions) ([]Lead, error) {
 	// Constrói query dinâmica com filtros opcionais
 	where := "excluido_em IS NULL"
@@ -151,12 +194,12 @@ func (r *leadRepository) List(ctx context.Context, opts ListOptions) ([]Lead, er
 	argPos := 1
 
 	if opts.UnidadeID != nil {
-		where += fmt.Sprintf(" AND unidade_id = $%d", argPos)
+		where += fmt.Sprintf(" AND unidd_id = $%d", argPos)
 		args = append(args, *opts.UnidadeID)
 		argPos++
 	}
 	if opts.AtendenteID != nil {
-		where += fmt.Sprintf(" AND atendente_id = $%d", argPos)
+		where += fmt.Sprintf(" AND login_recep = $%d", argPos)
 		args = append(args, *opts.AtendenteID)
 		argPos++
 	}
@@ -166,9 +209,8 @@ func (r *leadRepository) List(ctx context.Context, opts ListOptions) ([]Lead, er
 		argPos++
 	}
 
-	// Paginação portátil: LIMIT n OFFSET m
 	query := fmt.Sprintf(`
-		SELECT id, nome, telefone, email, status_id, unidade_id, atendente_id, meio_id, midia_id, criado_em, atualizado_em, excluido_em
+		SELECT id, fone1, starttime, fone2, nome, profissao, idade, patologia, nome_acomp, profis_acomp, idd_acomp, pato_acomp, midia_id, tent_id, contato_ok, status_id, unidd_id, meio_id, mot_pend_id, mot_perd_id, email, obs_curta_lead, login, login_recep, login_super, criado_em, alterado_em, excluido_em
 		FROM %s
 		WHERE %s
 		ORDER BY criado_em DESC
@@ -188,16 +230,32 @@ func (r *leadRepository) List(ctx context.Context, opts ListOptions) ([]Lead, er
 		var lead Lead
 		err := rows.Scan(
 			&lead.ID,
+			&lead.Fone1,
+			&lead.StartTime,
+			&lead.Fone2,
 			&lead.Nome,
-			&lead.Telefone,
-			&lead.Email,
-			&lead.StatusID,
-			&lead.UnidadeID,
-			&lead.AtendenteID,
-			&lead.MeioID,
+			&lead.Profissao,
+			&lead.Idade,
+			&lead.Patologia,
+			&lead.NomeAcomp,
+			&lead.ProfisAcomp,
+			&lead.IddAcomp,
+			&lead.PatoAcomp,
 			&lead.MidiaID,
+			&lead.TentID,
+			&lead.ContatoOK,
+			&lead.StatusID,
+			&lead.UniddID,
+			&lead.MeioID,
+			&lead.MotPendID,
+			&lead.MotPerdID,
+			&lead.Email,
+			&lead.ObsCurtaLead,
+			&lead.Login,
+			&lead.LoginRecep,
+			&lead.LoginSuper,
 			&lead.CriadoEm,
-			&lead.AtualizadoEm,
+			&lead.AlteradoEm,
 			&lead.ExcluidoEm,
 		)
 		if err != nil {

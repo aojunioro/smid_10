@@ -11,6 +11,7 @@ import (
 	"github.com/aojunioro/smid_10/backend/internal/domain/admin"
 	"github.com/aojunioro/smid_10/backend/internal/domain/common"
 	"github.com/aojunioro/smid_10/backend/internal/domain/communication"
+	"github.com/aojunioro/smid_10/backend/internal/domain/leads"
 	"github.com/aojunioro/smid_10/backend/internal/domain/log"
 	"github.com/aojunioro/smid_10/backend/internal/domain/tarefas"
 	"github.com/aojunioro/smid_10/backend/internal/http/handlers"
@@ -244,4 +245,20 @@ func setupProtectedRoutes(v1 *echo.Group, pools *db.Pools) {
 	tarefas.GET("/:id", tarefaHandler.GetTarefa)
 	tarefas.POST("", tarefaHandler.CreateTarefa)
 	tarefas.PUT("/:id", tarefaHandler.UpdateTarefa)
+
+	// Criar repositório de lead
+	leadRepo := leads.NewLeadRepository(smidDB, common.DBAlias(db.AliasSmid))
+
+	// Criar serviço de lead
+	leadService := leads.NewLeadService(leadRepo)
+
+	// Criar handler de lead
+	leadHandler := handlers.NewLeadHandler(leadService)
+
+	// Rotas de leads (protegidas por JWT)
+	leads := v1.Group("/leads")
+	leads.GET("", leadHandler.ListLeads)
+	leads.GET("/:id", leadHandler.GetLead)
+	leads.POST("", leadHandler.CreateLead)
+	leads.PUT("/:id", leadHandler.UpdateLead)
 }

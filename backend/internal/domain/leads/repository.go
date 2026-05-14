@@ -2,28 +2,9 @@ package leads
 
 import (
 	"context"
-	"time"
 
 	"github.com/aojunioro/smid_10/backend/internal/domain/common"
 )
-
-// Lead representa um lead no sistema.
-// Tipos de domínio independentes do driver (time.Time, *string, bool)
-// para facilitar migração para PostgreSQL pós-cutover (ADR 0004).
-type Lead struct {
-	ID          int64
-	Nome        string
-	Telefone    string
-	Email       *string // nulável
-	StatusID    int64
-	UnidadeID   int64
-	AtendenteID int64
-	MeioID      int64
-	MidiaID     *string // nulável
-	CriadoEm    time.Time
-	AtualizadoEm time.Time
-	ExcluidoEm   *time.Time // soft delete
-}
 
 // LeadRepository define a interface para operações de persistência de leads.
 // Uso de interface permite trocar a implementação (MySQL → PostgreSQL)
