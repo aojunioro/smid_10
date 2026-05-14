@@ -35,8 +35,8 @@ func (r *leadRepository) Ping(ctx context.Context) error {
 func (r *leadRepository) Create(ctx context.Context, lead *Lead) error {
 	query := fmt.Sprintf(`
 		INSERT INTO %s
-		(fone1, nome, status_id)
-		VALUES (?, ?, ?)
+		(fone1, nome, contato_ok, status_id)
+		VALUES (?, ?, ?, ?)
 	`, r.table)
 
 	now := time.Now().UTC()
@@ -46,6 +46,7 @@ func (r *leadRepository) Create(ctx context.Context, lead *Lead) error {
 	result, err := r.db.ExecContext(ctx, query,
 		lead.Fone1,
 		lead.Nome,
+		lead.ContatoOK,
 		lead.StatusID,
 	)
 	if err != nil {
