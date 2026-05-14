@@ -10,6 +10,7 @@ import (
 	"github.com/aojunioro/smid_10/backend/internal/db"
 	"github.com/aojunioro/smid_10/backend/internal/domain/admin"
 	"github.com/aojunioro/smid_10/backend/internal/domain/common"
+	"github.com/aojunioro/smid_10/backend/internal/domain/communication"
 	"github.com/aojunioro/smid_10/backend/internal/domain/log"
 	"github.com/aojunioro/smid_10/backend/internal/http/handlers"
 	"github.com/aojunioro/smid_10/backend/internal/http/middleware"
@@ -189,4 +190,35 @@ func setupProtectedRoutes(v1 *echo.Group, pools *db.Pools) {
 	logs.GET("/access", accessLogHandler.ListAccessLogs)
 	logs.GET("/change", changeLogHandler.ListChangeLogs)
 	logs.GET("/sql", sqlLogHandler.ListSqlLogs)
+
+	// Obter pool de conexão do banco communication
+	commDB, err := pools.Get(db.AliasCommunication)
+	if err != nil {
+		panic(err)
+	}
+
+	// Criar repositórios de communication
+	notificationRepo := communication.NewNotificationRepository(commDB, common.DBAlias(db.AliasCommunication))
+	messageRepo := communication.NewMessageRepository(commDB, common.DBAlias(db.AliasCommunication))
+
+	// Criar serviços de communication
+	notificationService := communication.NewNotificationService(notificationRepo)
+	messageService := communication.NewMessageService(messageRepo)
+
+	// Criar handlers de communication
+	notificationHandler := handlers.NewNotificationHandler(notificationService)
+	messageHandler := handlers.NewMessageHandler(messageService)
+
+	// Rotas de comunicação (protegidas por JWT)
+	notifications := v1.Group("/notifications")
+	notifications.GET("", notificationHandler.ListNotifications)
+	notifications.GET("/:id", notificationHandler.GetNotification)
+	notifications.POST("", notificationHandler.CreateNotification)
+	notifications.PUT("/:id", notificationHandler.UpdateNotification)
+
+	messages := v1.Group("/messages")
+	messages.GET("", messageHandler.ListMessages)
+	messages.GET("/:id", messageHandler.GetMessage)
+	messages.POST("", messageHandler.CreateMessage)
+	messages.PUT("/:id", messageHandler.UpdateMessage)
 }
