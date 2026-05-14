@@ -150,6 +150,24 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 
 **Nota**: Todos os endpoints de logs, comunicação e tarefas estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
 
+### Backend (Fase 0.5 — Plataformas de Negócio) — concluído em 2026-05-14
+
+1. ~~Ler SPEC_LEADS e planejar implementação~~ — concluído
+2. ~~Verificar tabelas existentes no banco smid~~ — concluído
+3. ~~Criar tabelas faltantes (leads, lead_status, lead_meio, midias, endereco)~~ — concluído
+4. ~~Atualizar entidades Lead para corresponder à tabela do banco~~ — concluído
+5. ~~Implementar repositório LeadRepository~~ — concluído
+6. ~~Implementar serviço LeadService~~ — concluído
+7. ~~Implementar handler LeadHandler~~ — concluído
+8. ~~Adicionar rotas de leads no routes.go~~ — concluído
+9. ~~Corrigir placeholders SQL (PostgreSQL $1 para MySQL ?)~~ — concluído
+10. ~~Corrigir erro de INSERT simplificando para colunas obrigatórias~~ — concluído
+11. ~~Corrigir erro de Scan usando COALESCE para campos de data NULL~~ — concluído
+12. ~~Deploy e testar endpoints de leads~~ — concluído (POST /api/v1/leads, GET /api/v1/leads, GET /api/v1/leads/:id, PUT /api/v1/leads/:id)
+13. ~~Configurar nginx proxy para API no frontend~~ — concluído
+
+**Nota**: Todos os endpoints de leads estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/. O nginx do frontend foi configurado para fazer proxy das requisições /api para o backend.
+
 ### Frontend (Fase 0.1 do frontend)
 
 1. ~~Scaffold do `shadcn-admin` em `frontend/` (opção A do `frontend/README.md`)~~ — concluído
