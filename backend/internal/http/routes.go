@@ -11,6 +11,7 @@ import (
 	"github.com/aojunioro/smid_10/backend/internal/domain/admin"
 	"github.com/aojunioro/smid_10/backend/internal/domain/common"
 	"github.com/aojunioro/smid_10/backend/internal/domain/communication"
+	"github.com/aojunioro/smid_10/backend/internal/domain/historicos"
 	"github.com/aojunioro/smid_10/backend/internal/domain/leads"
 	"github.com/aojunioro/smid_10/backend/internal/domain/log"
 	"github.com/aojunioro/smid_10/backend/internal/domain/tarefas"
@@ -279,4 +280,21 @@ func setupProtectedRoutes(v1 *echo.Group, pools *db.Pools) {
 	visitas.POST("", visitaHandler.CreateVisita)
 	visitas.PUT("/:id", visitaHandler.UpdateVisita)
 	visitas.DELETE("/:id", visitaHandler.DeleteVisita)
+
+	// Criar repositório de histórico
+	historicoRepo := historicos.NewHistoricoRepository(smidDB, common.DBAlias(db.AliasSmid))
+
+	// Criar serviço de histórico
+	historicoService := historicos.NewHistoricoService(historicoRepo)
+
+	// Criar handler de histórico
+	historicoHandler := handlers.NewHistoricoHandler(historicoService)
+
+	// Rotas de históricos (protegidas por JWT)
+	historicos := v1.Group("/historicos")
+	historicos.GET("", historicoHandler.ListHistoricos)
+	historicos.GET("/:id", historicoHandler.GetHistorico)
+	historicos.POST("", historicoHandler.CreateHistorico)
+	historicos.PUT("/:id", historicoHandler.UpdateHistorico)
+	historicos.DELETE("/:id", historicoHandler.DeleteHistorico)
 }
