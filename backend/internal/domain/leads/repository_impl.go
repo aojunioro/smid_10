@@ -191,22 +191,18 @@ func (r *leadRepository) List(ctx context.Context, opts ListOptions) ([]Lead, er
 	// Constrói query dinâmica com filtros opcionais
 	where := "excluido_em IS NULL"
 	args := []any{}
-	argPos := 1
 
 	if opts.UnidadeID != nil {
-		where += fmt.Sprintf(" AND unidd_id = $%d", argPos)
+		where += " AND unidd_id = ?"
 		args = append(args, *opts.UnidadeID)
-		argPos++
 	}
 	if opts.AtendenteID != nil {
-		where += fmt.Sprintf(" AND login_recep = $%d", argPos)
+		where += " AND login_recep = ?"
 		args = append(args, *opts.AtendenteID)
-		argPos++
 	}
 	if opts.StatusID != nil {
-		where += fmt.Sprintf(" AND status_id = $%d", argPos)
+		where += " AND status_id = ?"
 		args = append(args, *opts.StatusID)
-		argPos++
 	}
 
 	query := fmt.Sprintf(`
@@ -214,8 +210,8 @@ func (r *leadRepository) List(ctx context.Context, opts ListOptions) ([]Lead, er
 		FROM %s
 		WHERE %s
 		ORDER BY criado_em DESC
-		LIMIT $%d OFFSET $%d
-	`, r.table, where, argPos, argPos+1)
+		LIMIT ? OFFSET ?
+	`, r.table, where)
 
 	args = append(args, opts.Limit, opts.Offset)
 
