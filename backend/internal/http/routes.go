@@ -12,6 +12,7 @@ import (
 	"github.com/aojunioro/smid_10/backend/internal/domain/common"
 	"github.com/aojunioro/smid_10/backend/internal/domain/communication"
 	"github.com/aojunioro/smid_10/backend/internal/domain/compras"
+	"github.com/aojunioro/smid_10/backend/internal/domain/comissoes"
 	"github.com/aojunioro/smid_10/backend/internal/domain/financeiro"
 	"github.com/aojunioro/smid_10/backend/internal/domain/historicos"
 	"github.com/aojunioro/smid_10/backend/internal/domain/leads"
@@ -429,4 +430,27 @@ func setupProtectedRoutes(v1 *echo.Group, pools *db.Pools) {
 	fin.POST("/contas-receber", financeiroHandler.CreateContaReceber)
 	fin.PUT("/contas-receber/:id", financeiroHandler.UpdateContaReceber)
 	fin.DELETE("/contas-receber/:id", financeiroHandler.DeleteContaReceber)
+
+	// Criar repositórios de comissões
+	comissaoRepo := comissoes.NewComissaoRepository(smidDB, common.DBAlias(db.AliasSmid))
+	comissItemRepo := comissoes.NewComissItemRepository(smidDB, common.DBAlias(db.AliasSmid))
+
+	// Criar serviço de comissões
+	comissaoService := comissoes.NewComissaoService(comissaoRepo, comissItemRepo)
+
+	// Criar handler de comissões
+	comissaoHandler := handlers.NewComissaoHandler(comissaoService)
+
+	// Rotas de comissões (protegidas por JWT)
+	com := v1.Group("/comissoes")
+	com.GET("/comissoes", comissaoHandler.ListComissoes)
+	com.GET("/comissoes/:id", comissaoHandler.GetComissao)
+	com.POST("/comissoes", comissaoHandler.CreateComissao)
+	com.PUT("/comissoes/:id", comissaoHandler.UpdateComissao)
+	com.DELETE("/comissoes/:id", comissaoHandler.DeleteComissao)
+	com.GET("/itens/:comis_id", comissaoHandler.ListComissItems)
+	com.GET("/itens/:id", comissaoHandler.GetComissItem)
+	com.POST("/itens", comissaoHandler.CreateComissItem)
+	com.PUT("/itens/:id", comissaoHandler.UpdateComissItem)
+	com.DELETE("/itens/:id", comissaoHandler.DeleteComissItem)
 }
