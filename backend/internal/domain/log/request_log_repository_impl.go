@@ -28,7 +28,7 @@ func (r *requestLogRepository) Ping(ctx context.Context) error {
 
 func (r *requestLogRepository) List(ctx context.Context, opts ListOptions) ([]SystemRequestLog, error) {
 	query := fmt.Sprintf(`
-		SELECT id, endpoint, logdate, log_year, log_month, log_day, sessionid, login, access_ip, class_name, class_method, http_host, server_port, request_uri, request_method, query_string, request_headers, request_body, request_duration
+		SELECT id, endpoint, logdate, log_year, log_month, log_day, session_id, login, access_ip, class_name, class_method, http_host, server_port, request_uri, request_method, query_string, request_headers, request_body, request_duration
 		FROM %s
 		ORDER BY logdate DESC
 		LIMIT ? OFFSET ?
