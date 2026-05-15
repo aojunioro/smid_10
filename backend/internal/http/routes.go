@@ -17,6 +17,7 @@ import (
 	"github.com/aojunioro/smid_10/backend/internal/domain/pedidos"
 	"github.com/aojunioro/smid_10/backend/internal/domain/produtos"
 	"github.com/aojunioro/smid_10/backend/internal/domain/tarefas"
+	"github.com/aojunioro/smid_10/backend/internal/domain/televendas"
 	"github.com/aojunioro/smid_10/backend/internal/domain/visitas"
 	"github.com/aojunioro/smid_10/backend/internal/http/handlers"
 	"github.com/aojunioro/smid_10/backend/internal/http/middleware"
@@ -333,4 +334,21 @@ func setupProtectedRoutes(v1 *echo.Group, pools *db.Pools) {
 	produtos.POST("", produtoHandler.CreateProduto)
 	produtos.PUT("/:id", produtoHandler.UpdateProduto)
 	produtos.DELETE("/:id", produtoHandler.DeleteProduto)
+
+	// Criar repositório de televendas contato
+	televendasContatoRepo := televendas.NewTelevendasContatoRepository(smidDB, common.DBAlias(db.AliasSmid))
+
+	// Criar serviço de televendas contato
+	televendasContatoService := televendas.NewTelevendasContatoService(televendasContatoRepo)
+
+	// Criar handler de televendas
+	televendasHandler := handlers.NewTelevendasHandler(televendasContatoService)
+
+	// Rotas de televendas (protegidas por JWT)
+	televendas := v1.Group("/televendas")
+	televendas.GET("/contatos", televendasHandler.ListContatos)
+	televendas.GET("/contatos/:id", televendasHandler.GetContato)
+	televendas.POST("/contatos", televendasHandler.CreateContato)
+	televendas.PUT("/contatos/:id", televendasHandler.UpdateContato)
+	televendas.DELETE("/contatos/:id", televendasHandler.DeleteContato)
 }
