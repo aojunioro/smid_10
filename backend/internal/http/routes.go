@@ -12,6 +12,7 @@ import (
 	"github.com/aojunioro/smid_10/backend/internal/domain/common"
 	"github.com/aojunioro/smid_10/backend/internal/domain/communication"
 	"github.com/aojunioro/smid_10/backend/internal/domain/compras"
+	"github.com/aojunioro/smid_10/backend/internal/domain/financeiro"
 	"github.com/aojunioro/smid_10/backend/internal/domain/historicos"
 	"github.com/aojunioro/smid_10/backend/internal/domain/leads"
 	"github.com/aojunioro/smid_10/backend/internal/domain/log"
@@ -405,4 +406,27 @@ func setupProtectedRoutes(v1 *echo.Group, pools *db.Pools) {
 	compras.POST("/compras", compraHandler.CreateCompra)
 	compras.PUT("/compras/:id", compraHandler.UpdateCompra)
 	compras.DELETE("/compras/:id", compraHandler.DeleteCompra)
+
+	// Criar repositórios de financeiro
+	contaPagarRepo := financeiro.NewFinContaPagarRepository(smidDB, common.DBAlias(db.AliasSmid))
+	contaReceberRepo := financeiro.NewFinContaReceberRepository(smidDB, common.DBAlias(db.AliasSmid))
+
+	// Criar serviço de financeiro
+	financeiroService := financeiro.NewFinanceiroService(contaPagarRepo, contaReceberRepo)
+
+	// Criar handler de financeiro
+	financeiroHandler := handlers.NewFinanceiroHandler(financeiroService)
+
+	// Rotas de financeiro (protegidas por JWT)
+	fin := v1.Group("/financeiro")
+	fin.GET("/contas-pagar", financeiroHandler.ListContasPagar)
+	fin.GET("/contas-pagar/:id", financeiroHandler.GetContaPagar)
+	fin.POST("/contas-pagar", financeiroHandler.CreateContaPagar)
+	fin.PUT("/contas-pagar/:id", financeiroHandler.UpdateContaPagar)
+	fin.DELETE("/contas-pagar/:id", financeiroHandler.DeleteContaPagar)
+	fin.GET("/contas-receber", financeiroHandler.ListContasReceber)
+	fin.GET("/contas-receber/:id", financeiroHandler.GetContaReceber)
+	fin.POST("/contas-receber", financeiroHandler.CreateContaReceber)
+	fin.PUT("/contas-receber/:id", financeiroHandler.UpdateContaReceber)
+	fin.DELETE("/contas-receber/:id", financeiroHandler.DeleteContaReceber)
 }
