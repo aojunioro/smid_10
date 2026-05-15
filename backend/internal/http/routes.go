@@ -11,6 +11,7 @@ import (
 	"github.com/aojunioro/smid_10/backend/internal/domain/admin"
 	"github.com/aojunioro/smid_10/backend/internal/domain/common"
 	"github.com/aojunioro/smid_10/backend/internal/domain/communication"
+	"github.com/aojunioro/smid_10/backend/internal/domain/compras"
 	"github.com/aojunioro/smid_10/backend/internal/domain/historicos"
 	"github.com/aojunioro/smid_10/backend/internal/domain/leads"
 	"github.com/aojunioro/smid_10/backend/internal/domain/log"
@@ -387,4 +388,21 @@ func setupProtectedRoutes(v1 *echo.Group, pools *db.Pools) {
 	suporte.POST("/suportes", suporteHandler.CreateSuporte)
 	suporte.PUT("/suportes/:id", suporteHandler.UpdateSuporte)
 	suporte.DELETE("/suportes/:id", suporteHandler.DeleteSuporte)
+
+	// Criar repositório de compras
+	compraRepo := compras.NewCompraRepository(smidDB, common.DBAlias(db.AliasSmid))
+
+	// Criar serviço de compras
+	compraService := compras.NewCompraService(compraRepo)
+
+	// Criar handler de compras
+	compraHandler := handlers.NewCompraHandler(compraService)
+
+	// Rotas de compras (protegidas por JWT)
+	compras := v1.Group("/compras")
+	compras.GET("/compras", compraHandler.ListCompras)
+	compras.GET("/compras/:id", compraHandler.GetCompra)
+	compras.POST("/compras", compraHandler.CreateCompra)
+	compras.PUT("/compras/:id", compraHandler.UpdateCompra)
+	compras.DELETE("/compras/:id", compraHandler.DeleteCompra)
 }
