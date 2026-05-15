@@ -15,6 +15,7 @@ import (
 	"github.com/aojunioro/smid_10/backend/internal/domain/comissoes"
 	"github.com/aojunioro/smid_10/backend/internal/domain/financeiro"
 	"github.com/aojunioro/smid_10/backend/internal/domain/historicos"
+	"github.com/aojunioro/smid_10/backend/internal/domain/km"
 	"github.com/aojunioro/smid_10/backend/internal/domain/leads"
 	"github.com/aojunioro/smid_10/backend/internal/domain/log"
 	"github.com/aojunioro/smid_10/backend/internal/domain/pedidos"
@@ -453,4 +454,33 @@ func setupProtectedRoutes(v1 *echo.Group, pools *db.Pools) {
 	com.POST("/itens", comissaoHandler.CreateComissItem)
 	com.PUT("/itens/:id", comissaoHandler.UpdateComissItem)
 	com.DELETE("/itens/:id", comissaoHandler.DeleteComissItem)
+
+	// Criar repositórios de KM
+	kmConfigRepo := km.NewKmConfigRepository(smidDB, common.DBAlias(db.AliasSmid))
+	kmValorKmVigenciaRepo := km.NewKmValorKmVigenciaRepository(smidDB, common.DBAlias(db.AliasSmid))
+	kmReembolsoLoteRepo := km.NewKmReembolsoLoteRepository(smidDB, common.DBAlias(db.AliasSmid))
+
+	// Criar serviço de KM
+	kmService := km.NewKmService(kmConfigRepo, kmValorKmVigenciaRepo, kmReembolsoLoteRepo)
+
+	// Criar handler de KM
+	kmHandler := handlers.NewKmHandler(kmService)
+
+	// Rotas de KM (protegidas por JWT)
+	km := v1.Group("/km")
+	km.GET("/configs", kmHandler.ListKmConfigs)
+	km.GET("/configs/:id", kmHandler.GetKmConfig)
+	km.POST("/configs", kmHandler.CreateKmConfig)
+	km.PUT("/configs/:id", kmHandler.UpdateKmConfig)
+	km.DELETE("/configs/:id", kmHandler.DeleteKmConfig)
+	km.GET("/valores-km", kmHandler.ListKmValorKmVigencia)
+	km.GET("/valores-km/:id", kmHandler.GetKmValorKmVigencia)
+	km.POST("/valores-km", kmHandler.CreateKmValorKmVigencia)
+	km.PUT("/valores-km/:id", kmHandler.UpdateKmValorKmVigencia)
+	km.DELETE("/valores-km/:id", kmHandler.DeleteKmValorKmVigencia)
+	km.GET("/lotes", kmHandler.ListKmReembolsoLotes)
+	km.GET("/lotes/:id", kmHandler.GetKmReembolsoLote)
+	km.POST("/lotes", kmHandler.CreateKmReembolsoLote)
+	km.PUT("/lotes/:id", kmHandler.UpdateKmReembolsoLote)
+	km.DELETE("/lotes/:id", kmHandler.DeleteKmReembolsoLote)
 }
