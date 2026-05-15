@@ -309,6 +309,20 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 
 **Nota**: Todos os endpoints de comissões estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
 
+### Backend (Fase 0.13 — KM Rodado) — concluído em 2026-05-15
+
+1. ~~Ler SPEC_KM e planejar implementação~~ — concluído
+2. ~~Verificar tabelas existentes no banco smid~~ — concluído
+3. ~~Criar tabelas faltantes (km_config, km_valor_km_vigencia, km_reembolso_lote)~~ — concluído
+4. ~~Atualizar entidades KmConfig, KmValorKmVigencia e KmReembolsoLote~~ — concluído
+5. ~~Implementar repositórios KmConfigRepository, KmValorKmVigenciaRepository e KmReembolsoLoteRepository~~ — concluído
+6. ~~Implementar serviço KmService~~ — concluído
+7. ~~Implementar handler KmHandler~~ — concluído
+8. ~~Adicionar rotas de KM no routes.go~~ — concluído
+9. ~~Deploy e testar endpoints de KM~~ — concluído (POST/GET/PUT/DELETE /api/v1/km/configs, /api/v1/km/valores-km e /api/v1/km/lotes)
+
+**Nota**: Todos os endpoints de KM estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
+
 ### Frontend (Fase 0.1 do frontend)
 
 1. ~~Scaffold do `shadcn-admin` em `frontend/` (opção A do `frontend/README.md`)~~ — concluído
