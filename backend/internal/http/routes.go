@@ -17,6 +17,7 @@ import (
 	"github.com/aojunioro/smid_10/backend/internal/domain/pedidos"
 	"github.com/aojunioro/smid_10/backend/internal/domain/produtos"
 	"github.com/aojunioro/smid_10/backend/internal/domain/representantes"
+	"github.com/aojunioro/smid_10/backend/internal/domain/suporte"
 	"github.com/aojunioro/smid_10/backend/internal/domain/tarefas"
 	"github.com/aojunioro/smid_10/backend/internal/domain/televendas"
 	"github.com/aojunioro/smid_10/backend/internal/domain/visitas"
@@ -369,4 +370,21 @@ func setupProtectedRoutes(v1 *echo.Group, pools *db.Pools) {
 	representantes.POST("/despesas-extras", representanteHandler.CreateDespesaExtra)
 	representantes.PUT("/despesas-extras/:id", representanteHandler.UpdateDespesaExtra)
 	representantes.DELETE("/despesas-extras/:id", representanteHandler.DeleteDespesaExtra)
+
+	// Criar repositório de suporte
+	suporteRepo := suporte.NewSuporteRepository(smidDB, common.DBAlias(db.AliasSmid))
+
+	// Criar serviço de suporte
+	suporteService := suporte.NewSuporteService(suporteRepo)
+
+	// Criar handler de suporte
+	suporteHandler := handlers.NewSuporteHandler(suporteService)
+
+	// Rotas de suporte (protegidas por JWT)
+	suporte := v1.Group("/suporte")
+	suporte.GET("/suportes", suporteHandler.ListSuportes)
+	suporte.GET("/suportes/:id", suporteHandler.GetSuporte)
+	suporte.POST("/suportes", suporteHandler.CreateSuporte)
+	suporte.PUT("/suportes/:id", suporteHandler.UpdateSuporte)
+	suporte.DELETE("/suportes/:id", suporteHandler.DeleteSuporte)
 }
