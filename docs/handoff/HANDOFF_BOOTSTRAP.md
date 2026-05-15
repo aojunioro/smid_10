@@ -225,6 +225,20 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 
 **Nota**: Todos os endpoints de produtos estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
 
+### Backend (Fase 0.7 — Televendas) — concluído em 2026-05-15
+
+1. ~~Ler SPEC_TELEVENDAS e planejar implementação~~ — concluído
+2. ~~Verificar tabelas existentes no banco smid~~ — concluído
+3. ~~Criar tabelas faltantes (televendas_contatos, televendas_status, tele_coeficiente, orcam, orcam_status, orcam_prod_item)~~ — concluído
+4. ~~Atualizar entidades TelevendasContato, TelevendasStatus, TeleCoeficiente, Orcam, OrcamStatus, OrcamProdItem~~ — concluído
+5. ~~Implementar repositório TelevendasContatoRepository~~ — concluído
+6. ~~Implementar serviço TelevendasContatoService~~ — concluído
+7. ~~Implementar handler TelevendasHandler~~ — concluído
+8. ~~Adicionar rotas de televendas no routes.go~~ — concluído
+9. ~~Deploy e testar endpoints de televendas~~ — concluído (POST /api/v1/televendas/contatos, GET /api/v1/televendas/contatos, GET /api/v1/televendas/contatos/:id, PUT /api/v1/televendas/contatos/:id, DELETE /api/v1/televendas/contatos/:id)
+
+**Nota**: Todos os endpoints de televendas estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
+
 ### Frontend (Fase 0.1 do frontend)
 
 1. ~~Scaffold do `shadcn-admin` em `frontend/` (opção A do `frontend/README.md`)~~ — concluído
