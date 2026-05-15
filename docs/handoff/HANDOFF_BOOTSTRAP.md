@@ -281,6 +281,20 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 
 **Nota**: Todos os endpoints de compras estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
 
+### Backend (Fase 0.11 — Financeiro) — concluído em 2026-05-15
+
+1. ~~Ler SPEC_FINANCEIRO e planejar implementação~~ — concluído
+2. ~~Verificar tabelas existentes no banco smid~~ — concluído
+3. ~~Criar tabelas faltantes (fin_contas_pagar, fin_contas_receber)~~ — concluído
+4. ~~Atualizar entidades FinContaPagar e FinContaReceber~~ — concluído
+5. ~~Implementar repositórios FinContaPagarRepository e FinContaReceberRepository~~ — concluído
+6. ~~Implementar serviço FinanceiroService~~ — concluído
+7. ~~Implementar handler FinanceiroHandler~~ — concluído
+8. ~~Adicionar rotas de financeiro no routes.go~~ — concluído
+9. ~~Deploy e testar endpoints de financeiro~~ — concluído (POST/GET/PUT/DELETE /api/v1/financeiro/contas-pagar e /api/v1/financeiro/contas-receber)
+
+**Nota**: Todos os endpoints de financeiro estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
+
 ### Frontend (Fase 0.1 do frontend)
 
 1. ~~Scaffold do `shadcn-admin` em `frontend/` (opção A do `frontend/README.md`)~~ — concluído
