@@ -14,6 +14,7 @@ import (
 	"github.com/aojunioro/smid_10/backend/internal/domain/historicos"
 	"github.com/aojunioro/smid_10/backend/internal/domain/leads"
 	"github.com/aojunioro/smid_10/backend/internal/domain/log"
+	"github.com/aojunioro/smid_10/backend/internal/domain/pedidos"
 	"github.com/aojunioro/smid_10/backend/internal/domain/tarefas"
 	"github.com/aojunioro/smid_10/backend/internal/domain/visitas"
 	"github.com/aojunioro/smid_10/backend/internal/http/handlers"
@@ -297,4 +298,21 @@ func setupProtectedRoutes(v1 *echo.Group, pools *db.Pools) {
 	historicos.POST("", historicoHandler.CreateHistorico)
 	historicos.PUT("/:id", historicoHandler.UpdateHistorico)
 	historicos.DELETE("/:id", historicoHandler.DeleteHistorico)
+
+	// Criar repositório de pedido
+	pedidoRepo := pedidos.NewPedidoRepository(smidDB, common.DBAlias(db.AliasSmid))
+
+	// Criar serviço de pedido
+	pedidoService := pedidos.NewPedidoService(pedidoRepo)
+
+	// Criar handler de pedido
+	pedidoHandler := handlers.NewPedidoHandler(pedidoService)
+
+	// Rotas de pedidos (protegidas por JWT)
+	pedidos := v1.Group("/pedidos")
+	pedidos.GET("", pedidoHandler.ListPedidos)
+	pedidos.GET("/:id", pedidoHandler.GetPedido)
+	pedidos.POST("", pedidoHandler.CreatePedido)
+	pedidos.PUT("/:id", pedidoHandler.UpdatePedido)
+	pedidos.DELETE("/:id", pedidoHandler.DeletePedido)
 }
