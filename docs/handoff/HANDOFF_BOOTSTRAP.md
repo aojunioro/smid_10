@@ -295,6 +295,20 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 
 **Nota**: Todos os endpoints de financeiro estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
 
+### Backend (Fase 0.12 — Comissões) — concluído em 2026-05-15
+
+1. ~~Ler SPEC_COMISSOES e planejar implementação~~ — concluído
+2. ~~Verificar tabelas existentes no banco smid~~ — concluído
+3. ~~Criar tabelas faltantes (comissoes, comis_ped_item)~~ — concluído
+4. ~~Atualizar entidades Comissao e ComissItem~~ — concluído
+5. ~~Implementar repositórios ComissaoRepository e ComissItemRepository~~ — concluído
+6. ~~Implementar serviço ComissaoService~~ — concluído
+7. ~~Implementar handler ComissaoHandler~~ — concluído
+8. ~~Adicionar rotas de comissões no routes.go~~ — concluído
+9. ~~Deploy e testar endpoints de comissões~~ — concluído (POST/GET/PUT/DELETE /api/v1/comissoes/comissoes e /api/v1/comissoes/itens)
+
+**Nota**: Todos os endpoints de comissões estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
+
 ### Frontend (Fase 0.1 do frontend)
 
 1. ~~Scaffold do `shadcn-admin` em `frontend/` (opção A do `frontend/README.md`)~~ — concluído
