@@ -323,6 +323,19 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 
 **Nota**: Todos os endpoints de KM estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
 
+### Backend (Fase 0.14 — Log) — concluído em 2026-05-15
+
+1. ~~Ler SPEC_LOG e planejar implementação~~ — concluído
+2. ~~Verificar tabelas existentes no banco log~~ — concluído
+3. ~~Criar tabelas faltantes se necessário~~ — concluído (todas as tabelas já existiam)
+4. ~~Atualizar entidades e repositórios de Log~~ — concluído
+5. ~~Implementar serviços de Log~~ — concluído
+6. ~~Implementar handlers de Log~~ — concluído
+7. ~~Adicionar rotas de Log no routes.go~~ — concluído
+8. ~~Deploy e testar endpoints de Log~~ — concluído (GET /api/v1/logs/access, /api/v1/logs/change, /api/v1/logs/sql e /api/v1/logs/request)
+
+**Nota**: Todos os endpoints de Log estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
+
 ### Frontend (Fase 0.1 do frontend)
 
 1. ~~Scaffold do `shadcn-admin` em `frontend/` (opção A do `frontend/README.md`)~~ — concluído
