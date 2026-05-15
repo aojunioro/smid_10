@@ -118,3 +118,40 @@ func (h *SqlLogHandler) ListSqlLogs(c echo.Context) error {
 		"offset": offset,
 	})
 }
+
+type RequestLogHandler struct {
+	requestLogService *log.RequestLogService
+}
+
+func NewRequestLogHandler(requestLogService *log.RequestLogService) *RequestLogHandler {
+	return &RequestLogHandler{
+		requestLogService: requestLogService,
+	}
+}
+
+// ListRequestLogs handles GET /api/v1/logs/request
+func (h *RequestLogHandler) ListRequestLogs(c echo.Context) error {
+	limit, _ := strconv.Atoi(c.QueryParam("limit"))
+	offset, _ := strconv.Atoi(c.QueryParam("offset"))
+
+	if limit <= 0 || limit > 100 {
+		limit = 50
+	}
+	if offset < 0 {
+		offset = 0
+	}
+
+	logs, err := h.requestLogService.List(c.Request().Context(), limit, offset)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{
+			"error": "internal_error",
+			"message": err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]interface{}{
+		"request_logs": logs,
+		"limit": limit,
+		"offset": offset,
+	})
+}

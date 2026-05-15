@@ -73,3 +73,27 @@ func (s *SqlLogService) List(ctx context.Context, limit, offset int) ([]SystemSq
 
 	return logs, nil
 }
+
+type RequestLogService struct {
+	requestLogRepo RequestLogRepository
+}
+
+func NewRequestLogService(requestLogRepo RequestLogRepository) *RequestLogService {
+	return &RequestLogService{
+		requestLogRepo: requestLogRepo,
+	}
+}
+
+func (s *RequestLogService) List(ctx context.Context, limit, offset int) ([]SystemRequestLog, error) {
+	opts := ListOptions{
+		Limit:  limit,
+		Offset: offset,
+	}
+
+	logs, err := s.requestLogRepo.List(ctx, opts)
+	if err != nil {
+		return nil, err
+	}
+
+	return logs, nil
+}

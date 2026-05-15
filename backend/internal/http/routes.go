@@ -187,22 +187,26 @@ func setupProtectedRoutes(v1 *echo.Group, pools *db.Pools) {
 	accessLogRepo := log.NewAccessLogRepository(logDB, common.DBAlias(db.AliasLog))
 	changeLogRepo := log.NewChangeLogRepository(logDB, common.DBAlias(db.AliasLog))
 	sqlLogRepo := log.NewSqlLogRepository(logDB, common.DBAlias(db.AliasLog))
+	requestLogRepo := log.NewRequestLogRepository(logDB, common.DBAlias(db.AliasLog))
 
 	// Criar serviços de log
 	accessLogService := log.NewAccessLogService(accessLogRepo)
 	changeLogService := log.NewChangeLogService(changeLogRepo)
 	sqlLogService := log.NewSqlLogService(sqlLogRepo)
+	requestLogService := log.NewRequestLogService(requestLogRepo)
 
 	// Criar handlers de log
 	accessLogHandler := handlers.NewAccessLogHandler(accessLogService)
 	changeLogHandler := handlers.NewChangeLogHandler(changeLogService)
 	sqlLogHandler := handlers.NewSqlLogHandler(sqlLogService)
+	requestLogHandler := handlers.NewRequestLogHandler(requestLogService)
 
 	// Rotas de logs (protegidas por JWT)
 	logs := v1.Group("/logs")
 	logs.GET("/access", accessLogHandler.ListAccessLogs)
 	logs.GET("/change", changeLogHandler.ListChangeLogs)
 	logs.GET("/sql", sqlLogHandler.ListSqlLogs)
+	logs.GET("/request", requestLogHandler.ListRequestLogs)
 
 	// Obter pool de conexão do banco communication
 	commDB, err := pools.Get(db.AliasCommunication)
