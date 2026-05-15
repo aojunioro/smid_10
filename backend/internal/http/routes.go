@@ -15,6 +15,7 @@ import (
 	"github.com/aojunioro/smid_10/backend/internal/domain/leads"
 	"github.com/aojunioro/smid_10/backend/internal/domain/log"
 	"github.com/aojunioro/smid_10/backend/internal/domain/pedidos"
+	"github.com/aojunioro/smid_10/backend/internal/domain/produtos"
 	"github.com/aojunioro/smid_10/backend/internal/domain/tarefas"
 	"github.com/aojunioro/smid_10/backend/internal/domain/visitas"
 	"github.com/aojunioro/smid_10/backend/internal/http/handlers"
@@ -315,4 +316,21 @@ func setupProtectedRoutes(v1 *echo.Group, pools *db.Pools) {
 	pedidos.POST("", pedidoHandler.CreatePedido)
 	pedidos.PUT("/:id", pedidoHandler.UpdatePedido)
 	pedidos.DELETE("/:id", pedidoHandler.DeletePedido)
+
+	// Criar repositório de produto
+	produtoRepo := produtos.NewProdutoRepository(smidDB, common.DBAlias(db.AliasSmid))
+
+	// Criar serviço de produto
+	produtoService := produtos.NewProdutoService(produtoRepo)
+
+	// Criar handler de produto
+	produtoHandler := handlers.NewProdutoHandler(produtoService)
+
+	// Rotas de produtos (protegidas por JWT)
+	produtos := v1.Group("/produtos")
+	produtos.GET("", produtoHandler.ListProdutos)
+	produtos.GET("/:id", produtoHandler.GetProduto)
+	produtos.POST("", produtoHandler.CreateProduto)
+	produtos.PUT("/:id", produtoHandler.UpdateProduto)
+	produtos.DELETE("/:id", produtoHandler.DeleteProduto)
 }
