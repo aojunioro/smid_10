@@ -211,6 +211,20 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 
 **Nota**: Todos os endpoints de pedidos estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
 
+### Backend (Fase 0.6 — Plataformas de Negócio) — concluído em 2026-05-15
+
+1. ~~Ler SPEC_PRODUTOS e planejar implementação~~ — concluído
+2. ~~Verificar tabelas existentes no banco smid~~ — concluído
+3. ~~Criar tabelas faltantes (produtos, prod_categ, prod_medidas, prod_modelos)~~ — concluído
+4. ~~Atualizar entidades Produto, ProdCateg, ProdMedidas, ProdModelos~~ — concluído
+5. ~~Implementar repositório ProdutoRepository~~ — concluído
+6. ~~Implementar serviço ProdutoService~~ — concluído
+7. ~~Implementar handler ProdutoHandler~~ — concluído
+8. ~~Adicionar rotas de produtos no routes.go~~ — concluído
+9. ~~Deploy e testar endpoints de produtos~~ — concluído (POST /api/v1/produtos, GET /api/v1/produtos, GET /api/v1/produtos/:id, PUT /api/v1/produtos/:id, DELETE /api/v1/produtos/:id)
+
+**Nota**: Todos os endpoints de produtos estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
+
 ### Frontend (Fase 0.1 do frontend)
 
 1. ~~Scaffold do `shadcn-admin` em `frontend/` (opção A do `frontend/README.md`)~~ — concluído
