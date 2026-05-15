@@ -16,6 +16,7 @@ import (
 	"github.com/aojunioro/smid_10/backend/internal/domain/log"
 	"github.com/aojunioro/smid_10/backend/internal/domain/pedidos"
 	"github.com/aojunioro/smid_10/backend/internal/domain/produtos"
+	"github.com/aojunioro/smid_10/backend/internal/domain/representantes"
 	"github.com/aojunioro/smid_10/backend/internal/domain/tarefas"
 	"github.com/aojunioro/smid_10/backend/internal/domain/televendas"
 	"github.com/aojunioro/smid_10/backend/internal/domain/visitas"
@@ -351,4 +352,21 @@ func setupProtectedRoutes(v1 *echo.Group, pools *db.Pools) {
 	televendas.POST("/contatos", televendasHandler.CreateContato)
 	televendas.PUT("/contatos/:id", televendasHandler.UpdateContato)
 	televendas.DELETE("/contatos/:id", televendasHandler.DeleteContato)
+
+	// Criar repositório de despesa extra de representante
+	repreDespesaRepo := representantes.NewRepreDespesaExtraRepository(smidDB, common.DBAlias(db.AliasSmid))
+
+	// Criar serviço de despesa extra de representante
+	repreDespesaService := representantes.NewRepreDespesaExtraService(repreDespesaRepo)
+
+	// Criar handler de representante
+	representanteHandler := handlers.NewRepresentanteHandler(repreDespesaService)
+
+	// Rotas de representantes (protegidas por JWT)
+	representantes := v1.Group("/representantes")
+	representantes.GET("/despesas-extras", representanteHandler.ListDespesasExtras)
+	representantes.GET("/despesas-extras/:id", representanteHandler.GetDespesaExtra)
+	representantes.POST("/despesas-extras", representanteHandler.CreateDespesaExtra)
+	representantes.PUT("/despesas-extras/:id", representanteHandler.UpdateDespesaExtra)
+	representantes.DELETE("/despesas-extras/:id", representanteHandler.DeleteDespesaExtra)
 }
