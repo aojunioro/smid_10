@@ -267,6 +267,20 @@ Reimplementar o SMID 8.x (Adianti/PHP) em **Go (backend) + Next.js/shadcn (front
 
 **Nota**: Todos os endpoints de suporte estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
 
+### Backend (Fase 0.10 — Compras) — concluído em 2026-05-15
+
+1. ~~Ler SPEC_COMPRAS e planejar implementação~~ — concluído
+2. ~~Verificar tabelas existentes no banco smid~~ — concluído
+3. ~~Criar tabelas faltantes (compras)~~ — concluído
+4. ~~Atualizar entidades Compra~~ — concluído
+5. ~~Implementar repositório CompraRepository~~ — concluído
+6. ~~Implementar serviço CompraService~~ — concluído
+7. ~~Implementar handler CompraHandler~~ — concluído
+8. ~~Adicionar rotas de compras no routes.go~~ — concluído
+9. ~~Deploy e testar endpoints de compras~~ — concluído (POST /api/v1/compras/compras, GET /api/v1/compras/compras, GET /api/v1/compras/compras/:id, PUT /api/v1/compras/compras/:id, DELETE /api/v1/compras/compras/:id)
+
+**Nota**: Todos os endpoints de compras estão funcionando corretamente em https://api.s10.smydi.com.br/api/v1/.
+
 ### Frontend (Fase 0.1 do frontend)
 
 1. ~~Scaffold do `shadcn-admin` em `frontend/` (opção A do `frontend/README.md`)~~ — concluído
