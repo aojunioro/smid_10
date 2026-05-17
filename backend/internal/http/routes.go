@@ -39,7 +39,12 @@ func SetupRouter(e *echo.Echo, cfg *config.Config, pools *db.Pools, logger *slog
 	e.Use(echomiddleware.CORSWithConfig(echomiddleware.CORSConfig{
 		AllowOrigins: []string{"*"},
 		AllowMethods: []string{echo.GET, echo.POST, echo.PUT, echo.PATCH, echo.DELETE, echo.OPTIONS},
-		AllowHeaders: []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept},
+		AllowHeaders: []string{
+			echo.HeaderOrigin,
+			echo.HeaderContentType,
+			echo.HeaderAccept,
+			echo.HeaderAuthorization,
+		},
 	}))
 
 	// Middleware de logging estruturado customizado
@@ -48,32 +53,28 @@ func SetupRouter(e *echo.Echo, cfg *config.Config, pools *db.Pools, logger *slog
 	// Grupo de rotas da API v1
 	v1 := e.Group("/api/v1")
 
+	authService := newAuthService(cfg, pools)
+
 	// Rotas de autenticação (públicas)
-	setupAuthRoutes(v1, cfg, pools, logger)
+	setupAuthRoutes(v1, authService, logger)
 
 	// Rotas protegidas (requerem autenticação JWT)
-	setupProtectedRoutes(v1, pools)
+	protected := v1.Group("")
+	protected.Use(middleware.JWT(authService))
+	setupProtectedRoutes(protected, pools)
 }
 
-// setupAuthRoutes configura rotas de autenticação.
-func setupAuthRoutes(v1 *echo.Group, cfg *config.Config, pools *db.Pools, logger *slog.Logger) {
-	// Obter pool de conexão do banco permission
+func newAuthService(cfg *config.Config, pools *db.Pools) *admin.AuthService {
 	permissionDB, err := pools.Get(db.AliasPermission)
 	if err != nil {
 		panic(err)
 	}
-
-	// Criar repositório de usuário
 	userRepo := admin.NewUserRepository(permissionDB, common.DBAlias(db.AliasPermission))
+	return admin.NewAuthService(userRepo, cfg.JWT.Secret, cfg.JWT.Expiration)
+}
 
-	// Criar serviço de autenticação
-	authService := admin.NewAuthService(
-		userRepo,
-		cfg.JWT.Secret,
-		cfg.JWT.Expiration,
-	)
-
-	// Criar handler de autenticação
+// setupAuthRoutes configura rotas de autenticação.
+func setupAuthRoutes(v1 *echo.Group, authService *admin.AuthService, logger *slog.Logger) {
 	authHandler := handlers.NewAuthHandler(authService)
 
 	// Registrar rotas de autenticação

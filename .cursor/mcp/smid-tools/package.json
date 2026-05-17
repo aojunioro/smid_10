@@ -1,0 +1,11 @@
+{
+  "name": "smid-mcp-tools",
+  "private": true,
+  "type": "module",
+  "version": "1.0.0",
+  "description": "MCP tools for SMID 10 project context (SPECs, routes, domains)",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.1",
+    "zod": "^3.24.2"
+  }
+}

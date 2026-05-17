@@ -136,6 +136,8 @@ Ver `frontend/README.md` (a ser preenchido na Fase 0).
 | Contrato REST/JWT | `docs/specs/SPEC_REST_API.md` |
 | Padrões de UX/UI | `docs/specs/SPEC_UX_UI.md` |
 | Regras de operação para IA | `AGENTS.md` |
+| Harness Cursor (skills, rules, MCP) | `.cursor/README.md` |
+| Continuidade entre sessões | `docs/handoff/CURRENT.md` (serie: `docs/handoff/README.md`) |
 | Decisões arquiteturais | `docs/adrs/` |
 
 ---

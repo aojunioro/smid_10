@@ -1,0 +1,15 @@
+---
+description: Regras globais SMID 10 — SPECs, invariantes, git, idioma
+alwaysApply: true
+---
+
+# SMID 10 — Global
+
+- Fonte de verdade: `docs/specs/`; indice em `SPEC_INDEX.md`.
+- Schema legado MySQL intocavel (ADR 0002). Novas tabelas: prefixo `s10_`.
+- Quatro aliases de banco: `smid`, `permission`, `log`, `communication` — sem transacao cruzada.
+- Listagens: `excluido_em IS NULL`; filtrar `unidd_id` quando existir na tabela.
+- Status por categoria funcional, nunca ID fixo de status.
+- UI e docs de produto em pt-BR; codigo em ingles; commits em ingles; sem emojis.
+- Nao fazer `git commit` / `git push` sem instrucao explicita do usuario.
+- Ler `AGENTS.md` e `docs/handoff/CURRENT.md` ao retomar; archive/journal so sob demanda.

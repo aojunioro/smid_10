@@ -1,216 +1,259 @@
 # AGENTS.md — SMID 10
 
-Guia para agentes de IA e desenvolvedores trabalhando no SMID 10 (Go + Next.js). Este é o documento canônico de operação. Em conflito com qualquer outro, este prevalece.
+Guia canonico para agentes de IA e desenvolvedores no SMID 10. Em conflito com qualquer outro documento do repositorio, **este prevalece**.
 
 ---
 
-## 1. Contexto Rápido
+## 1. Contexto rapido
 
-- **Sucessor** do SMID 8.x (Adianti/PHP), reescrito em **Go (backend) + Next.js/shadcn (frontend)**
-- **Modo**: reuso da base MySQL do legado (`smid`, `permission`, `log`, `communication`)
-- **Coexistência**: SMID 8.x e SMID 10 operam simultaneamente até o cutover
-- **Fonte de verdade**: os 24 SPECs em `docs/specs/`
+| Item | Valor |
+|------|--------|
+| Legado | SMID 8.x (Adianti/PHP) |
+| SMID 10 | **Go (API REST)** + **Vite/React (SPA)** + shadcn/ui |
+| Bancos | 4 aliases MySQL: `smid`, `permission`, `log`, `communication` |
+| Coexistencia | SMID 8.x e SMID 10 ate cutover; schema legado **intocavel** |
+| Fonte de verdade | `docs/specs/` (24 SPECs) + ADRs em `docs/adrs/` |
+| Continuidade entre sessoes | `docs/handoff/CURRENT.md` (indice: `docs/handoff/README.md`) |
+| Referencia PHP (somente leitura) | worktree `smid_8` — ver handoff; nunca copiar controllers verbatim |
 
----
+**URLs de staging (quando deploy ativo):**
 
-## 2. Princípios Não Negociáveis
+- API: `https://api.s10.smydi.com.br`
+- App: `https://s10.smydi.com.br`
+- Health: `GET /healthz` (4 pools)
 
-1. **SPECs primeiro**: leia `docs/specs/SPEC_INDEX.md` antes de qualquer implementação
-2. **Schema legado intocável** durante a coexistência: novas tabelas, sim; alterar tabelas existentes, **não**
-3. **Multi-banco obrigatório**: respeitar os 4 aliases (`smid`, `permission`, `log`, `communication`)
-4. **Invariantes**: nunca quebrar os invariantes listados em `SPEC_INDEX.md` seção 8
-5. **Mobile premium**: validar nos breakpoints 320, 375, 414, 428, 768 e desktop
-6. **REST + JWT**: comunicação backend ↔ frontend sempre via API documentada
-7. **pt-BR**: documentação, interface, mensagens de erro
-8. **Inglês**: código (classes, funções, variáveis, comentários técnicos)
-9. **Sem emojis** em código, docs ou commits
-10. **Idempotência**: webhooks e jobs devem ser idempotentes por chave externa
+**Nota de stack:** ADR 0003 cita Next.js; o frontend atual e **Vite + TanStack Router** (`frontend/package.json`). Novas telas seguem a estrutura real em `frontend/src/`, nao `app/`. Mudanca para Next exige ADR.
 
 ---
 
-## 3. Workflow Padrão
+## 2. Harness do agente (Cursor)
+
+Usar estes artefatos antes de codar:
+
+| Artefato | Caminho | Uso |
+|----------|---------|-----|
+| Skills (projeto) | `.cursor/skills/*/SKILL.md` | Workflows: SPEC, frontend, handoff, deploy, invariantes |
+| Regras (projeto) | `.cursor/rules/*.mdc` | Padroes por tipo de arquivo (Go, TS, SPECs) |
+| MCP local | `.cursor/mcp.json` | Ferramentas `smid-tools` + docs |
+| MCP opcionais | `.cursor/mcp.json.example` | GitHub, MySQL (requer tokens locais) |
+| Workflows Windsurf | `.windsurf/workflows/*.md` | Equivalentes legados; preferir skills no Cursor |
+
+**Leitura obrigatoria por tipo de tarefa:**
+
+| Tarefa | Ler primeiro |
+|--------|----------------|
+| Qualquer feature | `docs/specs/SPEC_INDEX.md` + SPEC do dominio |
+| Backend dominio | Skill `smid-spec-implement` + `AGENTS.md` ss 4 e 6 |
+| Frontend | Skill `smid-frontend-feature` + `docs/specs/SPEC_UX_UI.md` |
+| Deploy VPS | Skill `smid-deploy-vps` + `deploy/README.md` |
+| Fim de sessao | Skill `smid-handoff-update` |
+| Seguranca/auth | `docs/specs/SPEC_ADMIN.md` + `SPEC_REST_API.md` |
+
+---
+
+## 3. Estado atual do codigo (espelho de `docs/handoff/CURRENT.md`)
+
+Resumo para nao supor maturidade inexistente:
+
+| Camada | Estado |
+|--------|--------|
+| Backend | CRUD REST amplo por dominio; **middleware JWT nas rotas protegidas ainda pendente** (`ValidateToken` existe, nao aplicado em `routes.go`) |
+| Regras de negocio | Maioria dos dominios em CRUD raso; invariantes INV-001+ nao cobertos por testes |
+| Dominios sem API | `SPEC_METAS`, `SPEC_RELATORIOS`, `SPEC_INTEGRACOES_JOBS` |
+| Frontend | Template shadcn-admin; **login mock**; `lib/api/client.ts` sem uso nas features |
+| Testes Go | Quase so `leads/repository_test.go` |
+| sqlc | Previsto no ADR; repositorios atuais usam SQL manual |
+
+**Prioridade de produto recomendada:** (1) JWT + login real, (2) vertical slice Leads UI+API com regras do SPEC, (3) sync Lead-Visita, (4) demais dominios.
+
+---
+
+## 4. Principios nao negociaveis
+
+1. **SPECs primeiro** — `docs/specs/SPEC_INDEX.md` antes de implementar
+2. **Schema legado intocavel** — novas tabelas `s10_*` ou schema dedicado; sem ALTER em tabelas legadas (ADR 0002)
+3. **Multi-banco** — transacoes por alias; nunca cruzar TX entre `smid` e `permission`
+4. **Invariantes** — `SPEC_INDEX.md` secao 8 (INV-001 a INV-015)
+5. **Mobile premium** — breakpoints 320, 375, 414, 428, 768 e desktop
+6. **REST + JWT** — contrato em `SPEC_REST_API.md`
+7. **pt-BR** — UI, docs de produto, mensagens ao usuario
+8. **Ingles** — codigo (nomes, comentarios tecnicos curtos)
+9. **Sem emojis** — codigo, docs, commits
+10. **Idempotencia** — webhooks e jobs por chave externa
+11. **Git** — nao commitar/push sem instrucao explicita do usuario
+
+---
+
+## 5. Workflow padrao
 
 ```
-ANALISAR → PLANEJAR → IMPLEMENTAR → TESTAR → VALIDAR → DOCUMENTAR
+ANALISAR -> PLANEJAR -> IMPLEMENTAR -> TESTAR -> VALIDAR -> DOCUMENTAR
 ```
 
-Para cada demanda:
-
-1. **ANALISAR**: ler SPECs do domínio afetado + ADRs relevantes
-2. **PLANEJAR**: definir endpoint REST (se aplicável), telas, contratos
-3. **IMPLEMENTAR**: backend antes do frontend; SPECs como referência
-4. **TESTAR**: testes unitários + integração; mobile responsivo
-5. **VALIDAR**: contra invariantes do SPEC_INDEX
-6. **DOCUMENTAR**: atualizar SPEC se houver mudança de regra; ADR se houver decisão arquitetural
+1. **ANALISAR** — SPEC do dominio + ADRs + `docs/handoff/CURRENT.md` (nao carregar archive inteiro)
+2. **PLANEJAR** — endpoints, telas, invariantes afetados
+3. **IMPLEMENTAR** — backend antes do frontend (salvo tarefa so UI)
+4. **TESTAR** — `go test`, `pnpm test`; mobile nos breakpoints
+5. **VALIDAR** — skill `smid-invariants-check` ou checklist secao 12
+6. **DOCUMENTAR** — SPEC/ADR se regra mudou; handoff se sessao encerrada
 
 ---
 
-## 4. Backend (Go)
+## 6. Backend (Go)
 
-### 4.1 Estrutura
+### 6.1 Estrutura real
 
 ```
 backend/
-  cmd/server/main.go         ← entrypoint
+  cmd/server/main.go
   internal/
-    config/                  ← carregamento de .env, struct Config
-    db/                      ← pools de conexão por alias (smid/permission/log/communication)
-    auth/                    ← JWT, hashing, sessão
-    domain/                  ← entidades, regras de negócio (por SPEC)
-      leads/
-      visitas/
-      pedidos/
-      ...
+    config/           # .env, Docker secrets *_FILE
+    db/pools.go       # AliasSmid, AliasPermission, AliasLog, AliasCommunication
+    domain/<dominio>/ # entities, repository, service, *_impl.go
     http/
-      handlers/              ← controllers REST
-      middleware/            ← auth, logging, recovery, cors
-      routes.go              ← registro de rotas
-  pkg/                       ← código reusável fora do internal
+      handlers/
+      middleware/     # logging (auth JWT: criar/aplicar aqui)
+      routes.go
 ```
 
-### 4.2 Regras
+JWT hoje: `internal/domain/admin/auth_service.go` (`Login`, `ValidateToken`).
 
-- **Cada domínio é um pacote**: `internal/domain/leads`, `internal/domain/visitas`, etc.
-- **Handlers finos**: parsing/validação de input + chamada para serviço de domínio + serialização
-- **Serviços de domínio**: regras de negócio puras, sem dependência de HTTP
-- **Repositórios**: acesso a banco via sqlc (queries tipadas) ou `database/sql`
-- **Transações**: abrir/fechar explicitamente por alias, nunca cruzar transações entre aliases
-- **Erros**: tipados com sentinel errors ou `errors.Is/As`; nunca expor `error.Error()` ao cliente sem sanitizar
-- **Logging**: `slog` estruturado; nunca logar senha/token/PII em claro
-- **Contexto**: propagar `context.Context` em todas as camadas
+### 6.2 Camadas
 
-### 4.3 Convenções
+- **Handlers finos** — bind, validate, service, JSON; erros sanitizados
+- **Services** — regras de negocio; sem import de Echo
+- **Repositories** — interface + `*_impl.go`; pool via `db.Pools.Get(alias)`
+- **Context** — propagar `context.Context`
+- **Logging** — `slog`; nunca senha/token/PII
 
-| Item | Convenção |
+### 6.3 Convencoes
+
+| Item | Convencao |
 |------|-----------|
-| Nome de pacote | `lowercase` (`leads`, `visitas`) |
-| Nome de tipo | `PascalCase` (`Lead`, `LeadService`) |
-| Nome de função | `PascalCase` se exportada, `camelCase` se não |
-| Nome de arquivo | `snake_case.go` ou `nome_servico.go` |
-| Erros | `ErrXxx` para sentinel; wrappear com `fmt.Errorf("%w", err)` |
-| Testes | `*_test.go` no mesmo pacote; usar `testify/assert` |
+| Pacote | `lowercase` |
+| Tipos exportados | `PascalCase` |
+| Arquivos | `snake_case.go` |
+| Erros | `ErrXxx` + `fmt.Errorf("%w", err)` |
+| Testes | `*_test.go`, `testify/assert` |
+| Commits | Conventional Commits em **ingles** |
+
+### 6.4 Comandos uteis
+
+```bash
+cd backend && cp .env.example .env
+go build ./...
+go vet ./...
+go test -race ./internal/domain/<dominio>/...
+go run ./cmd/server
+```
 
 ---
 
-## 5. Frontend (Next.js + shadcn/ui)
+## 7. Frontend (Vite + React + shadcn/ui)
 
-### 5.1 Estrutura
+### 7.1 Estrutura real
 
 ```
-frontend/
-  app/                       ← App Router (Next.js 14+)
-    (auth)/login/page.tsx
-    (app)/                   ← rotas autenticadas
-      leads/
-      visitas/
-      pedidos/
-      ...
-    layout.tsx
-    globals.css
+frontend/src/
+  routes/              # TanStack Router (file-based)
+    _authenticated/    # layout autenticado
+    (auth)/            # sign-in, etc.
+  features/            # modulos por dominio (criar smid aqui)
   components/
-    ui/                      ← shadcn/ui (gerados)
-    smid/                    ← componentes próprios reutilizáveis
-      side-panel.tsx         ← cortina lateral
-      data-table.tsx
-      date-range-field.tsx
-      multi-combo.tsx
-  lib/
-    api/                     ← clients REST por domínio
-    auth/                    ← guarda de rota, hooks
-    utils.ts
-  hooks/
-  types/                     ← types TypeScript espelhando JSON da API
+    ui/                # shadcn gerados
+    layout/            # sidebar, shell
+  lib/api/client.ts    # ApiClient + apiClient singleton
+  stores/auth-store.ts # token (hoje mock no sign-in)
 ```
 
-### 5.2 Regras
+Componentes SMID reutilizaveis: criar `frontend/src/components/smid/` (SidePanel, DataTable, etc.) conforme `SPEC_UX_UI.md`.
 
-- **shadcn/ui primeiro**: usar componentes prontos; criar custom apenas em `components/smid/`
-- **TanStack Query** para fetch: cache, refetch, optimistic updates
-- **react-hook-form + zod**: todos os formulários
-- **Mobile-first**: classes Tailwind começam por base (mobile) e crescem para `md:`, `lg:`
-- **Cortina lateral**: usar `<Sheet>` do shadcn como base; envolver em wrapper `<SidePanel>` próprio
-- **Tema**: `next-themes` com classe `dark` no `<html>`
-- **Acessibilidade**: Radix (via shadcn) já entrega; respeitar `aria-*` em customizações
-- **Sem emojis** em UI; usar ícones `lucide-react`
+### 7.2 Regras
 
-### 5.3 Convenções
+- shadcn/ui primeiro; custom em `components/smid/`
+- TanStack Query para API; `apiClient.setAuthToken` apos login
+- react-hook-form + zod em formularios
+- Mobile-first Tailwind (`base` -> `md:` -> `lg:`)
+- Cortina lateral: `Sheet` shadcn em wrapper `SidePanel`
+- Tema: provider em `context/theme-provider.tsx`
+- Icones: `lucide-react` (sem emojis)
 
-| Item | Convenção |
-|------|-----------|
-| Componente | `PascalCase.tsx` |
-| Hook | `useXxx.ts` |
-| Tipo TS | `PascalCase` |
-| Rota | `kebab-case` |
-| Variável | `camelCase` |
+### 7.3 Comandos
 
----
+```bash
+cd frontend && pnpm install
+pnpm dev          # Vite, porta padrao do projeto
+pnpm test
+pnpm build
+```
 
-## 6. Banco de Dados
-
-### 6.1 Reuso da Base Legada
-
-- **Schema existente é imutável** durante coexistência
-- **Conexões por alias** explicitamente nomeadas no pool
-- **Novas features** que precisem de tabelas: criar com prefixo `s10_` ou em schema dedicado
-- **Migrations**: `golang-migrate` apenas para deltas do SMID 10
-
-### 6.2 Queries
-
-- Preferir **sqlc** (queries SQL em `.sql`, código tipado gerado em Go)
-- Filtrar **sempre** por `unidd_id` quando aplicável
-- Filtrar **sempre** por `excluido_em IS NULL` em listagens (soft delete)
-- Usar `lead_status_categoria` / `ped_status_categoria` para categorização funcional, **nunca** IDs fixos
+Env: `VITE_API_BASE_URL` (ver `frontend/.env.example`).
 
 ---
 
-## 7. Segurança
+## 8. Banco de dados
+
+- Listagens: `excluido_em IS NULL`
+- Escopo: `unidd_id` quando a tabela tiver o campo (claims JWT futuros)
+- Status: `lead_status_categoria` / `ped_status_categoria` — **nunca IDs fixos** (INV-011)
+- SQL: parametrizado; preferir sqlc em codigo novo (ADR 0004 — evitar dialectismos MySQL onde possivel)
+- Migrations SMID 10: `golang-migrate` apenas para deltas `s10_*`
+
+Aliases em Go: `db.AliasSmid`, `db.AliasPermission`, `db.AliasLog`, `db.AliasCommunication`.
+
+---
+
+## 9. Seguranca
 
 | Item | Regra |
-|------|-------|
-| Senhas | Hash + salt; nunca em claro; comparar com `bcrypt` ou compatível com legado |
-| JWT | HS256, expiração 8h, refresh dedicado |
-| Validação | Backend valida 100% do input, mesmo com validação no frontend |
-| SQL injection | Apenas queries parametrizadas; sqlc força isso |
-| CORS | Configurado por ambiente; produção restrita |
-| Rate limit | Endpoints de autenticação e busca |
-| Auditoria | Toda escrita relevante gera entrada equivalente a `SystemChangeLog` |
-| Secrets | Apenas em `.env` (gitignored); produção em variáveis de ambiente do orquestrador |
+|------|--------|
+| Senhas | bcrypt compativel com legado |
+| JWT | HS256, 8h; aplicar middleware em `/api/v1/*` exceto `/auth/login` |
+| Validacao | 100% no backend |
+| Auditoria | escritas relevantes -> `SystemChangeLog` (SPEC_LOG) |
+| Secrets | `.env` / Swarm secrets; nunca no git |
+| CORS | restrito em producao |
 
 ---
 
-## 8. Workflow Git
+## 10. Mapa de dominios (backend)
 
-- Branch `main` é integração; nunca commitar diretamente
-- Trabalho em `feature/<modulo>-<descricao>` ou `fix/<descricao>`
-- Commits convencionais: `feat:`, `fix:`, `docs:`, `chore:`, `refactor:`, `test:`
-- Mensagens de commit em inglês, sem emoji
-- Merge para `main` apenas após review e testes
+| Status API | Dominios |
+|------------|----------|
+| Implementado (CRUD) | admin, log (leitura), communication, tarefas, leads, visitas, historicos, pedidos, produtos, televendas (contatos), representantes (despesas), suporte, compras, financeiro, comissoes, km |
+| Pendente | metas, relatorios, integracoes_jobs, televendas (orcam/fila), regras transversais |
 
----
-
-## 9. Checklist Antes de Concluir uma Demanda
-
-- [ ] SPECs do domínio lidos e respeitados
-- [ ] Invariantes do `SPEC_INDEX.md` validados
-- [ ] Testes unitários passando
-- [ ] Testes de integração (se aplicável) passando
-- [ ] Mobile validado nos breakpoints
-- [ ] Sem credenciais ou PII em código/logs
-- [ ] Documentação atualizada (SPEC ou ADR) se houve mudança de regra
-- [ ] Sem código morto ou comentários TODO sem responsável
+Rotas: `backend/internal/http/routes.go`.
 
 ---
 
-## 10. Quando Atualizar Este Documento
+## 11. Workflow Git
 
-Sempre que:
-- Surgir nova convenção que se aplique a múltiplos domínios
-- Mudar um princípio não negociável (raro; requer ADR)
-- Adicionar dependência transversal (ex.: nova lib de auth, nova lib de UI)
-
-Atualizar acompanhado de um ADR em `docs/adrs/`.
+- `main` = integracao; trabalho em `feature/<modulo>-<descricao>` ou `fix/<descricao>`
+- Nao commitar sem pedido explicito do usuario
+- Nao push/merge/checkout destrutivo sem autorizacao
 
 ---
 
-**Versão**: 0.1.0
-**Status**: documento vivo
+## 12. Checklist antes de concluir
+
+- [ ] SPEC(s) e invariantes lidos
+- [ ] `unidd_id` e `excluido_em` nas queries aplicaveis
+- [ ] Testes passando (`go test` / `pnpm test`)
+- [ ] Mobile nos breakpoints obrigatorios
+- [ ] Sem credenciais ou PII em logs
+- [ ] SPEC/ADR atualizados se regra mudou
+- [ ] Handoff atualizado se encerrar sessao longa (skill `smid-handoff-update`)
+
+---
+
+## 13. Quando atualizar este arquivo
+
+- Nova convencao transversal
+- Mudanca de stack ou principio (com ADR)
+- Mudanca material no harness (skills, MCP, estrutura de pastas)
+
+---
+
+**Versao**: 0.2.0  
+**Status**: documento vivo — alinhado ao harness em `.cursor/`

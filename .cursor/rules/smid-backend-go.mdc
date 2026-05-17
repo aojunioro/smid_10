@@ -1,0 +1,16 @@
+---
+description: Padroes Go/Echo para backend SMID 10
+globs: backend/**/*.go
+alwaysApply: false
+---
+
+# Backend Go — SMID 10
+
+- Dominio em `internal/domain/<nome>/`: entities, `repository.go` (interface), `*_impl.go`, `*_service.go`, `errors.go`.
+- Handlers em `internal/http/handlers/` — finos; validar input; mapear erros de dominio para HTTP; nunca vazar `err.Error()` cru.
+- Registrar rotas em `internal/http/routes.go`. Rotas `/api/v1/*` (exceto auth) devem exigir JWT quando middleware existir.
+- Pool: `pools.Get(db.AliasSmid)` (ou Permission/Log/Communication). Nunca assumir conexao global.
+- Propagar `context.Context`. Logs com `slog`; sem PII/senha/token.
+- SQL parametrizado (`?` no MySQL). Preferir `COALESCE`, `LIMIT n OFFSET m`.
+- Testes: `go test -race ./internal/domain/...`; usar `testify/assert`.
+- Antes de feature nova: ler `docs/specs/SPEC_<DOMINIO>.md` e invariantes em `SPEC_INDEX.md` secao 8.

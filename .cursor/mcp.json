@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "smid-tools": {
+      "command": "node",
+      "args": ["${workspaceFolder}/.cursor/mcp/smid-tools/index.mjs"]
+    },
+    "smid-docs": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "${workspaceFolder}/docs"
+      ]
+    }
+  }
+}

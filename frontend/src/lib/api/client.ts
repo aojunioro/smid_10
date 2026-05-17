@@ -78,10 +78,14 @@ export class ApiClient {
 
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
+        const message =
+          (typeof errorData.message === 'string' && errorData.message) ||
+          (typeof errorData.error === 'string' && errorData.error) ||
+          `HTTP ${response.status}`;
         throw new ApiError(
-          errorData.message || `HTTP ${response.status}`,
+          message,
           response.status,
-          errorData.code
+          typeof errorData.error === 'string' ? errorData.error : errorData.code
         );
       }
 

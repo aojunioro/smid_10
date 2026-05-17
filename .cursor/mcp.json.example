@@ -1,0 +1,37 @@
+{
+  "mcpServers": {
+    "smid-tools": {
+      "command": "node",
+      "args": [".cursor/mcp/smid-tools/index.mjs"],
+      "env": {
+        "SMID_ROOT": "${workspaceFolder}"
+      }
+    },
+    "smid-docs": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "${workspaceFolder}/docs"
+      ]
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${env:GITHUB_TOKEN}"
+      }
+    },
+    "mysql-smid": {
+      "command": "npx",
+      "args": ["-y", "@benborla29/mcp-server-mysql"],
+      "env": {
+        "MYSQL_HOST": "127.0.0.1",
+        "MYSQL_PORT": "3306",
+        "MYSQL_USER": "smid10",
+        "MYSQL_PASS": "${env:SMID_MYSQL_PASS}",
+        "MYSQL_DB": "smid"
+      }
+    }
+  }
+}

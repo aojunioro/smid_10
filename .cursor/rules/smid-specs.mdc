@@ -1,0 +1,13 @@
+---
+description: Ao editar ou implementar a partir de SPECs SMID
+globs: docs/specs/**/*.md
+alwaysApply: false
+---
+
+# SPECs SMID
+
+- `SPEC_INDEX.md` define ordem de implementacao e invariantes INV-001 a INV-015.
+- Alteracao de regra de negocio no SPEC exige validacao contra invariantes e possivel ADR.
+- Nao copiar texto de controllers PHP; SPECs descrevem comportamento, nao UI legada verbatim.
+- Endpoints devem alinhar com `SPEC_REST_API.md`.
+- Ao marcar dominio concluido no checklist do indice, exigir testes e rotas reais no backend.

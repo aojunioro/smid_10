@@ -1,0 +1,16 @@
+---
+description: Padroes Vite/React/shadcn para frontend SMID 10
+globs: frontend/src/**/*.{ts,tsx}
+alwaysApply: false
+---
+
+# Frontend — SMID 10
+
+- Stack: Vite + TanStack Router + shadcn/ui + TanStack Query + react-hook-form + zod.
+- API: `frontend/src/lib/api/client.ts` (`apiClient`); base URL via `VITE_API_BASE_URL`.
+- Apos login real: `apiClient.setAuthToken(jwt)`; token em `stores/auth-store.ts`.
+- Features de negocio em `frontend/src/features/<dominio>/`; componentes SMID compartilhados em `components/smid/`.
+- shadcn em `components/ui/` — nao editar gerados sem necessidade.
+- Mobile-first Tailwind; testar 320px–768px. Formularios em cortina (`Sheet` / SidePanel).
+- Mensagens ao usuario em pt-BR. Icones `lucide-react`; sem emojis.
+- Nao deixar mocks do template (sign-in mock) em fluxos SMID de producao.
