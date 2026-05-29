@@ -7,9 +7,11 @@ async function importAuthStore() {
 }
 
 const sampleUser = {
-  accountNo: 'ACC-1',
+  id: 1,
+  login: 'admin',
+  name: 'Admin',
   email: 'user@example.com',
-  role: ['user'],
+  systemUnitId: 1,
   exp: 1_700_000_000,
 }
 
